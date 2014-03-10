@@ -12,12 +12,7 @@ public:
 	TokenStream();
 	TokenStream(std::istream& is);
 
-	operator bool() const;
-
 	void loadStream(std::istream& is);
 
 	Token nextToken();
-
-private:
-	void* buffer;
 };

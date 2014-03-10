@@ -1,27 +1,23 @@
 #include "tokenstream.hpp"
 
+namespace flex {
+	void scan_string(const std::string&);
+}
+
+
 TokenStream::~TokenStream() {
-	void yy_delete_buffer(void*);
-	yy_delete_buffer(buffer);
 }
 
-TokenStream::TokenStream()
-	: buffer(nullptr) {}
+TokenStream::TokenStream() {}
 
-TokenStream::TokenStream(std::istream& is)
-	: buffer(nullptr) {
+TokenStream::TokenStream(std::istream& is) {
 	loadStream(is);
-}
-
-TokenStream::operator bool() const {
-	return buffer != nullptr;
 }
 
 void TokenStream::loadStream(std::istream& is) {
 	std::stringstream ss;
 	ss << is.rdbuf();
-	void* yy_scan_string(void*);
-	yy_scan_string(buffer);
+	flex::scan_string(ss.str());
 }
 
 Token TokenStream::nextToken() {
