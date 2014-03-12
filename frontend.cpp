@@ -1,6 +1,5 @@
 #include "token.hpp"
 
-#include <fstream>
 #include <iostream>
 
 using namespace std;
