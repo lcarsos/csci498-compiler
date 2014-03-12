@@ -9,7 +9,6 @@ FLEX_TARGET(flexScanner language_0.l ${CMAKE_CURRENT_BINARY_DIR}/language_0.cpp)
 # TODO: Organize files.
 include_directories(
 	"."
-	${FLEX_INCLUDE_DIR}
 )
 
 if(MSVC)
