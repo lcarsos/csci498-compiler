@@ -4,25 +4,25 @@
 #include <string>
 
 struct Token {
-	// There is a copy-pasted list of strings which depends on this.
-	// CHANGE THE VECTOR IN token.cpp IF YOU CHANGE THIS.
-	enum token_type {
+	// Changes here must be mirrored in token_str() in token.cpp.
+	enum class Type {
 		Error,
 		Number,
 		Identifier,
 		EoF,
+		Count,
 	};
 	// TODO: Rename this.
-	static std::string token_str(token_type type);
+	static std::string token_str(Type type);
 
 	Token()
-		: type(Token::Error), value("") {}
-	Token(token_type type, const std::string& value)
+		: type(Type::Error), value("") {}
+	Token(Type type, const std::string& value)
 		: type(type), value(value) {}
 
 	operator bool();
 
-	token_type type;
+	Type type;
 	std::string value;
 };
 

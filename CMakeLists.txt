@@ -13,11 +13,13 @@ include_directories(
 )
 
 if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS
+	# Why /SAFESEH?
 		# If the version used to build a library (like fl) doesn't match the one you're
 		# using, this setting will error during linking. Turning it off here lets
 		# us use VS2013 with whichever version of Flex we got.
-		/SAFESEH:NO
+
+	set(CMAKE_EXE_LINKER_FLAGS
+		"${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO"
 	)
 	add_definitions(
 		# Listen to warnings! They're there for a reason.
