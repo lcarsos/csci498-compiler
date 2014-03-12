@@ -1,9 +1,8 @@
-%option
 %{
 
 #include "token.hpp"
 
-#define YY_DECL Token yylex()
+#define YY_DECL Token nextToken()
 ; // This is to keep syntax highlighting happy.
 
 unsigned int line = 1;
@@ -12,16 +11,15 @@ unsigned int line = 1;
 
 %%
 
-\n                                { line += 1; continue; }
-[ \t\r]+                          { continue; } // Ignore whitespace.
-[0-9]+                            { return Token(Token::Number, yytext); }
-[a-zA-Z_]+[a-zA-Z_0-9]*           { return Token(Token::Identifier, yytext); }
-<<EOF>>                           { return Token(Token::EoF, ""); }
+[ \t\r\n]+              { continue; } // Ignore whitespace.
+[0-9]+                  { return Token(Token::Number, yytext); }
+[0-9][a-zA-Z_0-9]+      {
+                          // Flex will match this as a single digit number and an ID.
+                          //     but it's an error!
+                          return Token(Token::Error, yytext);
+}
+[a-zA-Z_]+[a-zA-Z_0-9]* { return Token(Token::Identifier, yytext); }
+<<EOF>>                 { return Token(Token::EoF, ""); }
+.                       { return Token(Token::Error, yytext); }
 
 %%
-
-namespace flex {
-	void scan_string(const std::string& buf) {
-		yy_switch_to_buffer(yy_scan_string(buf.c_str()));
-	}
-}

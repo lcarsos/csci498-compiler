@@ -1,16 +1,19 @@
 #include "token.hpp"
-#include "tokenstream.hpp"
 
 #include <fstream>
 #include <iostream>
 
-extern Token yylex();
+using namespace std;
 
 int main() {
-	std::ifstream fi("foo.txt");
-	TokenStream input(fi);
 	Token tok;
-	while ( (tok = input.nextToken()).type != Token::EoF) {
-		std::cout << tok << "\n";
-	}
+	do {
+		tok = nextToken();
+		if (tok.type == Token::Error) {
+			cerr << "Unrecognized token: '" << tok.value << "'." << endl;
+			continue;
+		}
+		cout << tok << endl;
+	} while (tok);
+
 }
