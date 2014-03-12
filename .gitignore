@@ -12,12 +12,5 @@
 *.la
 *.a
 
-# VS files
-*.suo
-*.user
-Debug/
-Release/
-Bin/
-
 # Windows executable files
 *.exe
