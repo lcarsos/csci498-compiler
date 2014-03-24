@@ -5,6 +5,9 @@
 using namespace std;
 
 int main() {
+	// Enables debugging Bison.
+	yydebug = 1;
+
 	int result = yyparse();
 	cout << "yyparse(): " << result << "\n";
 }

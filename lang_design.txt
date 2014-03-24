@@ -1,90 +1,19 @@
-/**
- * This file is for designing and documenting the language using rules looking similar
- * to those used in clas ( A => b B c). This is to allow faster design because I think it 
- * looks cleaner than bison's syntax. Also, not everyone knows the syntax.
-**/
- 
-Program => Statements
+// With a Bison file, specifics to the grammar can go in that.
 
-Block => { Statements }
-	  |  Statement
+// Tokens we need our scanner to recognize:
 
-Statements => Statements Statement
-		   |  Block
-		   |  Block Statements
-			
-Statement => Declarations ;
-		  |  Expression ;
-		  |  IfStatement
-		  |  WhileStatement
-		  |  ReturnStatement ;
-		  |  ;
+What                Potential Regex
+-------------------------------------
+floats:            [+-]?[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)?
+ints:              [+-]?[0-9]+
+identifiers:       [a-zA-Z_]+[a-zA-Z_0-9]*
+keywords:          (if | else | while | return | const)
+multi-char ops     "&&", "=", "==", etc.
+built-in types     float, double, int, char, etc.
 
-// Some of this declaration code could be cleaned up
-Declarations => Declaration 
-			 |  Type DeclRepeat
+// We don't NEED these, but they might make error messages easier to generate.
+curlybrace         \{, \}
+parens             \(, \)
+comma              ,
+semicolons         ;
 
-DeclRepeats => DeclRepeat
-			|  DeclRepeat, DeclRepeat
-			 
-DeclRepeat => Asignment
-		   |  Identifier
-	  
-Declaration => Type Assignment 
-			|  Type Identifier
-
-Expression => Assignment 
-		   |  ( Expression )
-		   |  Value Operator Expression
-		   |  Value
-
-IfStatement => if ( Expression ) Block
-			|  if ( Expression ) Block ElseStatement
-			
-ElseStatement => else Block
-			  |  else IfStatement
-
-WhileStatement => while ( Expression ) Block
-
-ReturnStatement => return Expression
-		   
-// For now lump all operators in one. Let a future step in the parser do 
-// operator precedence/type checking for now
-Operator => ~
-		 |  !
-		 |  %
-		 |  ^
-		 |  &
-		 |  &&
-		 |  *
-		 |  -
-		 |  +
-		 |  |
-		 |  ||
-		 |  >>
-		 |  >>
-		 |  /
-		   
-// An optional operator for things that only take ints as there params
-// not currently used
-IntOperator => >>
-			 | <<
-		   
-Assignment => Identifier = Expression
-
-Value => Literal
-	  |  Identifier
-
-// Will require help from static semantics
-IntegralType => Identifier
-			 |  IntLit
-
-Literal => IntLit 
-		|  FloatLit
-
-// need to extend if we want user defined types (classes, strcuts, typedefs)		
-Type => const LitType
-	 |  LitType
-
-LitType => IntType
-		|  FloatType

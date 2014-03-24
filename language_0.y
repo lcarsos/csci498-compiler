@@ -3,24 +3,26 @@
 
 	#include <iostream>
 
+	// From flex
 	int yylex();
+
 	void yyerror(const char*);
 %}
 
-// Debugging flags. This makes finding problems much easier.
+// Debugging flags.
 // Some of them need yydebug assigned to 1 before calling yyparse().
 %debug
 %error-verbose
 %define parse.lac full
 
-// This adds additonal arguments to yyparse.
-// We can use it to return the AST.
+// This adds additonal arguments to yyparse. We can use it to return
+//    the AST, but until then it just gets in the way.
 //%parse-param {ASTNode& program}.
 
 // Tokens are declared like so, where A is the member of the union
 //   to store the value of B in, when found. B is just a name.
 // %token <A> B.
-// TODO: More tokens. Probably.
+// TODO: More tokens. See lang_design.txt.
 %token <integer> Integer
 %token <real> Float
 %token <identifier> Identifier
@@ -156,14 +158,17 @@ Value:
 | Float
 ;
 
-// Need to extend if we want user defined types (classes, strcuts, typedefs).
 Type:
   'const' Identifier
 | Identifier
+// TODO: Figure out which built-in types we're supporting.
+| 'float'
+| 'double'
+| 'int'
 ;
 
 %%
 
 void yyerror(const char* msg) {
-	std::cerr << msg << std::endl;
+	std::cerr << "[Error] " << msg << std::endl;
 }
