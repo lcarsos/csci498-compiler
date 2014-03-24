@@ -9,26 +9,30 @@
 
 %{
 
-#include "token.hpp"
-
-#define YY_DECL Token nextToken()
-; // This is to keep syntax highlighting happy.
-
-unsigned int line = 1;
+#include "language_0_parser.hpp"
 
 %}
 
+/* Tokens used here are defined in the bison file.
+   TODO: Tokens for binary and uninary operators? */
 %%
 
-[ \t\r\n]+              { continue; } // Ignore whitespace.
-[0-9]+                  { return Token(Token::Type::Number, yytext); }
-[0-9][a-zA-Z_0-9]+      {
-                          // Flex will match this as a single digit number and an ID.
-                          //     but it's an error!
-                          return Token(Token::Type::Error, yytext);
+[+-]?[0-9]+ {
+	yylval.integer = atoi(yytext);
+	return Integer;
 }
-[a-zA-Z_]+[a-zA-Z_0-9]* { return Token(Token::Type::Identifier, yytext); }
-<<EOF>>                 { return Token(Token::Type::EoF, ""); }
-.                       { return Token(Token::Type::Error, yytext); }
+[+-]?[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)? {
+	yylval.real = atof(yytext);
+	return Float;
+}
+[a-zA-Z_]+[a-zA-Z_0-9]* {
+	yylval.identifier = strdup(yytext);
+	return Identifier;
+}
+
+. {
+	// Do nothing with unknown characters.
+	continue;
+}
 
 %%
