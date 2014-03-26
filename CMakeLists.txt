@@ -19,6 +19,7 @@ if(WIN32)
 	# Flex uses the unistd.h header file, which doesn't exist on Windows.
 	# Passing this flag, on a specific port at least, tells Flex to use io.h instead.
 	# We need this flag to build on Windows, as far as I can tell.
+	# Download Flex and Bison here: http://sourceforge.net/projects/winflexbison/
 	set(FLEX_FLAGS "--wincompat")
 else()
 	set(FLEX_FLAGS "")
@@ -48,13 +49,13 @@ if(MSVC)
 		/W4
 	)
 else()
-
 	include(CheckCXXCompilerFlag)
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11)
-	CHECK_CXX_COMPILER_FLAG("-std=c++0x" CXX0x)
 	if (CXX11)
 		add_definitions("-std=c++11")
 	else()
+		# Assume it has the older flag. If it doesn't have even that,
+		#   we're going to have trouble building anyway.
 		add_definitions("-std=c++0x")
 	endif()
 

@@ -1,6 +1,4 @@
 %{
-	#include "language_0_parser.hpp"
-
 	#include <iostream>
 
 	// From flex

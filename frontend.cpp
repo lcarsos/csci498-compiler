@@ -8,6 +8,18 @@ int main() {
 	// Enables debugging Bison.
 	yydebug = 1;
 
-	int result = yyparse();
-	cout << "yyparse(): " << result << "\n";
+	switch (yyparse()) {
+		case 0:
+			// All is good!
+			cout << "No errors with yyparse()!\n";
+			break;
+		case 1:
+			cout << "Syntax error!\n";
+			break;
+		case 2:
+			cout << "Memory error!\n";
+			break;
+		default:
+			cout << "Unknown error.\n";
+	}
 }
