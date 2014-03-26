@@ -54,10 +54,8 @@ else()
 	CHECK_CXX_COMPILER_FLAG("-std=c++0x" CXX0x)
 	if (CXX11)
 		add_definitions("-std=c++11")
-	elseif(CXX0X)
-		add_definitions("-std=c++0x")
 	else()
-		message(FATAL_ERROR "Compiler does not support -std=c++11 or -std=c++0x.")
+		add_definitions("-std=c++0x")
 	endif()
 
 	add_definitions(
