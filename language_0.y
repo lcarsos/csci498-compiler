@@ -108,23 +108,28 @@ Expression:
 ;
 
 IfStatement:
+// TODO: Make an IfKeyword token.
   'if' '(' Expression ')' Block
 | 'if' '(' Expression ')' Block ElseStatement
 ;
 
 ElseStatement:
+// TODO: Make an ElseKeyword token.
   'else' Block
 | 'else' IfStatement
 
 WhileStatement:
+// TODO: Make a WhileKeyword token.
   'while' '(' Expression ')' Block
 
 ReturnStatement:
+// TODO: Make a ReturnKeyword token.
   'return' Expression
 
 // For now lump all operators in one. Let a future step in the parser do
 //   operator precedence/type checking for now.
 // We might need the scanner to handle multi-character literals here.
+// TODO: Make an Operator token or a token for each operator.
 Operator:
   '~'
 | '!'
@@ -144,6 +149,7 @@ Operator:
 
 // An optional operator for things that only take ints as there params.
 // Not currently used.
+// TODO: Make an IntOperator token or a token for each operator.
 IntOperator:
   '>>'
 | '<<'
@@ -159,11 +165,10 @@ Value:
 ;
 
 Type:
-  'const' Identifier
+// TODO: Make a ConstKeyword token.
+  'const' Type
 | Identifier
-// TODO: Figure out which built-in types we're supporting.
-| 'float'
-| 'double'
+// TODO: Make an IntType token.
 | 'int'
 ;
 
