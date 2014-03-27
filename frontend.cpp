@@ -4,13 +4,12 @@
 
 using namespace std;
 
-int main() {
-	// Enables debugging Bison.
-	yydebug = 1;
+// Not declared in the header, apparently?
+int yyparse();
 
+int main() {
 	switch (yyparse()) {
 		case 0:
-			// All is good!
 			cout << "No errors with yyparse()!\n";
 			break;
 		case 1:
