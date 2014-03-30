@@ -26,8 +26,39 @@ divStr	              "/"
 mulStr	              "*"
 modStr	              "%"
 semicolonStr          ";"
+constStr	      "const"
+commaStr	      ","
+elseStr		      "else"
+whileStr	      "while"
+returnStr	      "return"
+equalsStr	      "="
+intStr		      "int"
 %%
 
+constStr {
+  return constKeyword;
+}
+
+commaStr {
+  return comma;
+}
+
+elseStr {
+  return elseKeyword;
+}
+
+whileStr {
+  return whileKeyword;
+}
+returnStr {
+  return returnKeyword;
+}
+intStr {
+  return intType;
+}
+equalsStr {
+  return equalsop;
+}
 semicolonStr {
   return semicolon;
 }
@@ -86,7 +117,7 @@ modStr {
   return mod;
 }
 ifStr {
-  return ifToken;
+  return ifKeyword;
 }
 
 lBracketStr {

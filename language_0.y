@@ -24,7 +24,7 @@
 %token <integer> Integer
 %token <real> Float
 %token <identifier> Identifier
-%token <aMember> ifToken;
+%token <aMember> ifKeyword;
 %token <aMember> lBracket;
 %token <aMember> rBracket;
 %token <aMember> lParen;
@@ -43,7 +43,14 @@
 %token <aMember> divop;
 %token <aMember> mul;
 %token <aMember> mod;
+%token <aMember> equalsop;
 %token <aMember> semicolon;
+%token <aMember> comma;
+%token <aMember> elseKeyword
+%token <aMember> constKeyword;
+%token <aMember> whileKeyword;
+%token <aMember> returnKeyword;
+%token <aMember> intType;
 
 
 
@@ -108,7 +115,7 @@ Declarations:
 
 DeclRepeats:
   DeclRepeat
-| DeclRepeat "," DeclRepeat
+| DeclRepeat comma DeclRepeat
 ;
 
 DeclRepeat:
@@ -128,23 +135,20 @@ Expression:
 ;
 
 IfStatement:
-// TODO: Make an IfKeyword token.
-  ifToken lParen Expression rParen Block
-| ifToken lParen Expression rParen Block ElseStatement
+  ifKeyword lParen Expression rParen Block
+| ifKeyword lParen Expression rParen Block ElseStatement
 ;
 
 ElseStatement:
-// TODO: Make an ElseKeyword token.
-  "else" Block
-| "else" IfStatement
+  elseKeyword Block
+| elseKeyword IfStatement
 
 WhileStatement:
-// TODO: Make a WhileKeyword token.
-  "while" lParen Expression rParen Block
+  whileKeyword lParen Expression rParen Block
 
 ReturnStatement:
 // TODO: Make a ReturnKeyword token.
-  "return" Expression
+  returnKeyword Expression
 
 // For now lump all operators in one. Let a future step in the parser do
 //   operator precedence/type checking for now.
@@ -176,7 +180,7 @@ IntOperator:
 ;
 
 Assignment:
-  Identifier "=" Expression
+  Identifier equalsop Expression
 
 Value:
   Identifier
@@ -185,11 +189,9 @@ Value:
 ;
 
 Type:
-// TODO: Make a ConstKeyword token.
-  "const" Type
+  constKeyword Type
 | Identifier
-// TODO: Make an IntType token.
-| "int"
+| intType
 ;
 
 %%
