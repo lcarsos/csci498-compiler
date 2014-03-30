@@ -34,6 +34,12 @@ BISON_TARGET(PARSER language_0.y
 	${BIN}/language_0_parser.cpp)
 ADD_FLEX_BISON_DEPENDENCY(SCANNER PARSER)
 
+# Disable warnings in auto-generated files. We don't have control over them.
+set_source_files_properties(
+	${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
+	PROPERTIES COMPILE_FLAGS /w
+)
+
 if(MSVC)
 	# Why /SAFESEH?
 		# If the version used to build a library (like fl) doesn't match the one you're
