@@ -34,27 +34,30 @@ BISON_TARGET(PARSER language_0.y
 	${BIN}/language_0_parser.cpp)
 ADD_FLEX_BISON_DEPENDENCY(SCANNER PARSER)
 
-# Disable warnings in auto-generated files. We don't have control over them.
-set_source_files_properties(
-	${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
-	PROPERTIES COMPILE_FLAGS /w
-)
-
 if(MSVC)
 	# Why /SAFESEH?
-		# If the version used to build a library (like fl) doesn't match the one you're
-		# using, this setting will error during linking. Turning it off here lets
-		# us use VS2013 with whichever version of Flex we got.
+	#     If the version used to build a library (like fl) doesn't match the one you're
+	#     using, this setting will error during linking. Turning it off here lets
+	#     us use VS2013 with whichever version of Flex we got.
 
 	set(CMAKE_EXE_LINKER_FLAGS
 		"${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO"
 	)
 	add_definitions(
-		# Listen to warnings! They're there for a reason.
 		# Anything higher will start checking the standard headers. Yes, really.
 		/W4
 	)
+	# Disable warnings in auto-generated files. We don't have control over them.
+	set_source_files_properties(
+		${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
+		PROPERTIES COMPILE_FLAGS /w
+)
+# Technically, this only works for GCC/Clang. If someone tries using
+#     another compiler, maybe Intel?, CMake will get confused.
 else()
+	# Difference versions of GCC/Clang use different flags for C++11.
+	#   So we need to check which one is available.
+	#   (Alamode uses c++0x, but anything from the past 2.5 years uses c++11)
 	include(CheckCXXCompilerFlag)
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11)
 	if (CXX11)
@@ -66,11 +69,16 @@ else()
 	endif()
 
 	add_definitions(
-		# Listen to warnings! They're there for a reason.
 		-Wall -Wextra
 	)
+	# Disable warnings in auto-generated files. We don't have control over them.
+	set_source_files_properties(
+		${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
+		PROPERTIES COMPILE_FLAGS -w
+)
 endif()
 
+# This is somewhat messy. Perhaps there's a better way?
 include_directories(
 	${BIN}
 )
