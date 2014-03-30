@@ -91,6 +91,7 @@ Program:
 Block:
   lBracket Statements rBracket
 | Statement
+;
 
 Statements:
   Statements Statement
@@ -121,6 +122,7 @@ DeclRepeats:
 DeclRepeat:
   Assignment
 | Identifier
+;
 
 Declaration:
   Type Assignment
@@ -142,14 +144,15 @@ IfStatement:
 ElseStatement:
   elseKeyword Block
 | elseKeyword IfStatement
+;
 
 WhileStatement:
   whileKeyword lParen Expression rParen Block
-
+;
 ReturnStatement:
 // TODO: Make a ReturnKeyword token.
   returnKeyword Expression
-
+;
 // For now lump all operators in one. Let a future step in the parser do
 //   operator precedence/type checking for now.
 // We might need the scanner to handle mulOpti-character literals here.
@@ -181,6 +184,7 @@ IntOperator:
 
 Assignment:
   Identifier equalsOp Expression
+;
 
 Value:
   Identifier
