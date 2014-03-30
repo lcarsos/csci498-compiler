@@ -17,13 +17,42 @@
 //    the AST, but until then it just gets in the way.
 //%parse-param {ASTNode& program}.
 
-// Tokens are declared like so, where A is the member of the union
+// ens are declared like so, where A is the member of the union
 //   to store the value of B in, when found. B is just a name.
 // %token <A> B.
 // TODO: More tokens. See lang_design.txt.
 %token <integer> Integer
 %token <real> Float
 %token <identifier> Identifier
+%token <aMember> ifKeyword;
+%token <aMember> lBracket;
+%token <aMember> rBracket;
+%token <aMember> lParen;
+%token <aMember> rParen;
+%token <aMember> bitorOp;
+%token <aMember> bitandOp;
+%token <aMember> bitxorOp;
+%token <aMember> bitnotOp;
+%token <aMember> shlOp;
+%token <aMember> shrOp;
+%token <aMember> logorOp;
+%token <aMember> logandOp;
+%token <aMember> lognotOp;
+%token <aMember> addOp;
+%token <aMember> subOp;
+%token <aMember> divOp;
+%token <aMember> mulOp;
+%token <aMember> modOp;
+%token <aMember> equalsOp;
+%token <aMember> semicolon;
+%token <aMember> comma;
+%token <aMember> elseKeyword
+%token <aMember> constKeyword;
+%token <aMember> whileKeyword;
+%token <aMember> returnKeyword;
+%token <aMember> intType;
+
+
 
 // This defines the type of everything we use in our grammar.
 // TODO: Design our AST so these can have meaningful types.
@@ -60,8 +89,9 @@ Program:
 ;
 
 Block:
-  '{' Statements '}'
+  lBracket Statements rBracket
 | Statement
+;
 
 Statements:
   Statements Statement
@@ -70,12 +100,12 @@ Statements:
 ;
 
 Statement:
-  Declarations ';'
-| Expression ';'
+  Declarations semicolon
+| Expression semicolon
 | IfStatement
 | WhileStatement
-| ReturnStatement ';'
-| ';'
+| ReturnStatement semicolon
+| semicolon
 ;
 
 // Some of this declaration code could be cleaned up.
@@ -86,12 +116,13 @@ Declarations:
 
 DeclRepeats:
   DeclRepeat
-| DeclRepeat ',' DeclRepeat
+| DeclRepeat comma DeclRepeat
 ;
 
 DeclRepeat:
   Assignment
 | Identifier
+;
 
 Declaration:
   Type Assignment
@@ -100,61 +131,60 @@ Declaration:
 
 Expression:
   Assignment
-| '(' Expression ')'
+| lParen Expression rParen
 | Value Operator Expression
 | Value
 ;
 
 IfStatement:
-// TODO: Make an IfKeyword token.
-  'if' '(' Expression ')' Block
-| 'if' '(' Expression ')' Block ElseStatement
+  ifKeyword lParen Expression rParen Block
+| ifKeyword lParen Expression rParen Block ElseStatement
 ;
 
 ElseStatement:
-// TODO: Make an ElseKeyword token.
-  'else' Block
-| 'else' IfStatement
+  elseKeyword Block
+| elseKeyword IfStatement
+;
 
 WhileStatement:
-// TODO: Make a WhileKeyword token.
-  'while' '(' Expression ')' Block
-
+  whileKeyword lParen Expression rParen Block
+;
 ReturnStatement:
 // TODO: Make a ReturnKeyword token.
-  'return' Expression
-
+  returnKeyword Expression
+;
 // For now lump all operators in one. Let a future step in the parser do
 //   operator precedence/type checking for now.
-// We might need the scanner to handle multi-character literals here.
+// We might need the scanner to handle mulOpti-character literals here.
 // TODO: Make an Operator token or a token for each operator.
 Operator:
-  '~'
-| '!'
-| '%'
-| '^'
-| '&'
-| '&&'
-| '*'
-| '-'
-| '+'
-| '|'
-| '||'
-| '>>'
-| '>>'
-| '/'
+  bitnotOp
+| lognotOp
+| modOp
+| bitxorOp
+| bitandOp
+| logandOp
+| mulOp
+| subOp
+| addOp
+| bitorOp
+| logorOp
+| shrOp
+| shlOp
+| divOp
 ;
 
 // An optional operator for things that only take ints as there params.
 // Not currently used.
 // TODO: Make an IntOperator token or a token for each operator.
 IntOperator:
-  '>>'
-| '<<'
+  shrOp
+| shlOp
 ;
 
 Assignment:
-  Identifier '=' Expression
+  Identifier equalsOp Expression
+;
 
 Value:
   Identifier
@@ -163,11 +193,9 @@ Value:
 ;
 
 Type:
-// TODO: Make a ConstKeyword token.
-  'const' Type
+  constKeyword Type
 | Identifier
-// TODO: Make an IntType token.
-| 'int'
+| intType
 ;
 
 %%
