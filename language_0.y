@@ -29,21 +29,21 @@
 %token <aMember> rBracket;
 %token <aMember> lParen;
 %token <aMember> rParen;
-%token <aMember> bitorop;
-%token <aMember> bitandop;
-%token <aMember> bitxor;
-%token <aMember> bitnot;
-%token <aMember> shl;
-%token <aMember> shr;
-%token <aMember> logor;
-%token <aMember> logand;
-%token <aMember> lognot;
-%token <aMember> add;
-%token <aMember> sub;
-%token <aMember> divop;
-%token <aMember> mul;
-%token <aMember> mod;
-%token <aMember> equalsop;
+%token <aMember> bitorOp;
+%token <aMember> bitandOp;
+%token <aMember> bitxorOp;
+%token <aMember> bitnotOp;
+%token <aMember> shlOp;
+%token <aMember> shrOp;
+%token <aMember> logorOp;
+%token <aMember> logandOp;
+%token <aMember> lognotOp;
+%token <aMember> addOp;
+%token <aMember> subOp;
+%token <aMember> divOp;
+%token <aMember> mulOp;
+%token <aMember> modOp;
+%token <aMember> equalsOp;
 %token <aMember> semicolon;
 %token <aMember> comma;
 %token <aMember> elseKeyword
@@ -152,35 +152,35 @@ ReturnStatement:
 
 // For now lump all operators in one. Let a future step in the parser do
 //   operator precedence/type checking for now.
-// We might need the scanner to handle multi-character literals here.
+// We might need the scanner to handle mulOpti-character literals here.
 // TODO: Make an Operator token or a token for each operator.
 Operator:
-  bitnot
-| lognot
-| mod
-| bitxor
-| bitandop
-| logand
-| mul
-| sub
-| add
-| bitorop
-| logor
-| shr
-| shl
-| divop
+  bitnotOp
+| lognotOp
+| modOp
+| bitxorOp
+| bitandOp
+| logandOp
+| mulOp
+| subOp
+| addOp
+| bitorOp
+| logorOp
+| shrOp
+| shlOp
+| divOp
 ;
 
 // An optional operator for things that only take ints as there params.
 // Not currently used.
 // TODO: Make an IntOperator token or a token for each operator.
 IntOperator:
-  shr
-| shl
+  shrOp
+| shlOp
 ;
 
 Assignment:
-  Identifier equalsop Expression
+  Identifier equalsOp Expression
 
 Value:
   Identifier

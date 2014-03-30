@@ -35,106 +35,59 @@ equalsStr	      "="
 intStr		      "int"
 %%
 
-constStr {
-  return constKeyword;
-}
+constStr { return constKeyword; }
 
-commaStr {
-  return comma;
-}
+commaStr { return comma; }
 
-elseStr {
-  return elseKeyword;
-}
+elseStr { return elseKeyword; }
 
-whileStr {
-  return whileKeyword;
-}
-returnStr {
-  return returnKeyword;
-}
-intStr {
-  return intType;
-}
-equalsStr {
-  return equalsop;
-}
-semicolonStr {
-  return semicolon;
-}
-bitandStr {
-  return bitandop;
-}
+whileStr { return whileKeyword; }
 
-bitorStr {
-  return bitorop;
-}
+returnStr { return returnKeyword; }
 
-xorStr {
-  return bitxor;
-}
+intStr { return intType; }
 
-bitnotStr {
-  return bitnot;
-}
+equalsStr { return equalsOp; }
 
-shlStr {
-  return shl;
-}
+semicolonStr { return semicolon; }
 
-shrStr {
-  return shr;
-}
+bitandStr { return bitandOp; }
 
-logorStr {
-  return logor;
-}
+bitorStr {  return bitorOp; }
 
-logandStr {
-  return logand;
-}
+xorStr { return bitxorOp; }
 
-lognotStr {
-  return lognot;
-}
+bitnotStr { return bitnotOp; }
 
-addStr {
-  return add;
-}
-subStr {
-  return sub;
-}
+shlStr { return shlOp; }
 
-divStr {
-  return divop;
-}
+shrStr { return shrOp; }
 
-mulStr {
-  return mul;
-}
+logorStr { return logorOp; }
 
-modStr {
-  return mod;
-}
-ifStr {
-  return ifKeyword;
-}
+logandStr { return logandOp; }
 
-lBracketStr {
-  return lBracket;
-}
+lognotStr { return lognotOp; }
 
-rBracketStr {
-  return rBracket;
-}
+addStr { return addOp; }
 
-lParenStr {
-  return lParen;
-}
+subStr { return subOp; }
 
-rParenStr {
-  return rParen;
-}
+divStr { return divOp; }
+
+mulStr { return mulOp; }
+
+modStr { return modOp; }
+
+ifStr { return ifKeyword; }
+
+lBracketStr { return lBracket; }
+
+rBracketStr { return rBracket; }
+
+lParenStr { return lParen; }
+
+rParenStr { return rParen; }
 
 [+-]?[0-9]+ {
 	yylval.integer = atoi(yytext);
