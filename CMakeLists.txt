@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.0)
 
-# Do we want to change the name of this?
-# I chose it to be a little more descriptive than "Compiler", that's it.
 project(HellmanCompiler CXX)
 
 find_package(FLEX REQUIRED)
@@ -28,10 +26,12 @@ endif()
 # For convience.
 set(BIN ${CMAKE_CURRENT_BINARY_DIR})
 
-FLEX_TARGET(SCANNER language_0.l
-	${BIN}/language_0_scanner.cpp COMPILE_FLAGS "${FLEX_FLAGS}")
-BISON_TARGET(PARSER language_0.y
-	${BIN}/language_0_parser.cpp)
+FLEX_TARGET(
+	SCANNER flex-bison/language_0.l
+	${BIN}/flex-bison-autogen/language_0_scanner.cpp COMPILE_FLAGS "${FLEX_FLAGS}")
+BISON_TARGET(
+	PARSER flex-bison/language_0.y
+	${BIN}/flex-bison-autogen/language_0_parser.cpp)
 ADD_FLEX_BISON_DEPENDENCY(SCANNER PARSER)
 
 if(MSVC)
@@ -49,7 +49,7 @@ if(MSVC)
 	)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
-		${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
+		${BIN}/flex-bison-autogen/language_0_scanner.cpp ${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS /w
 )
 # Technically, this only works for GCC/Clang. If someone tries using
@@ -73,21 +73,27 @@ else()
 	)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
-		${BIN}/language_0_scanner.cpp ${BIN}/language_0_parser.cpp
+		${BIN}/flex-bison-autogen/language_0_scanner.cpp ${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS -w
 )
 endif()
 
-# This is somewhat messy. Perhaps there's a better way?
 include_directories(
-	${BIN}
+	include
+	${BIN}/flex-bison-autogen
 )
 
 add_executable(frontend
-	frontend.cpp
-	ast.cpp
+	# Source files.
+	source/frontend.cpp
+	source/ast.cpp
+	${BIN}/flex-bison-autogen/language_0_scanner.cpp
+	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
-	${BIN}/language_0_scanner.cpp
-	${BIN}/language_0_parser.cpp
+	# Header files.
+	${BIN}/flex-bison-autogen/language_0_parser.hpp
+	include/ast.h
 )
+
 target_link_libraries(frontend fl)
+set_property(TARGET frontend PROPERTY FOLDER "IncludesL")
