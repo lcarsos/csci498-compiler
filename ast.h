@@ -8,7 +8,7 @@ class ASTNode {
 public:
 
 	enum NodeType {
-		Literal, Symbol, Operator, Base
+		Literal, Symbol, Operator, Empty
 	};
 
 	// All node creation goes through this function
@@ -18,11 +18,14 @@ public:
 
 	// removes children and returns them
 	std::shared_ptr<ASTNode> removeChildren();
+
 	ASTNode* getLeftMostChild();
 	ASTNode* getRightMostChild();
 
 	// by value so we create a new string
 	std::string getStr();
+
+	NodeType getType();
 
 protected:
 	ASTNode(NodeType type, std::string str);

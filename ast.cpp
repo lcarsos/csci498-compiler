@@ -54,3 +54,7 @@ shared_ptr<ASTNode> ASTNode::removeChildren(){
 string ASTNode::getStr(){
 	return str;
 }
+
+ASTNode::NodeType ASTNode::getType() {
+	return type;
+}
