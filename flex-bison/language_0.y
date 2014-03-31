@@ -9,6 +9,7 @@
 
 // Debugging flags.
 // Some of them need yydebug assigned to 1 before calling yyparse().
+//   (They are VERY verbose!)
 %debug
 %error-verbose
 %define parse.lac full
@@ -17,185 +18,131 @@
 //    the AST, but until then it just gets in the way.
 //%parse-param {ASTNode& program}.
 
-// ens are declared like so, where A is the member of the union
-//   to store the value of B in, when found. B is just a name.
-// %token <A> B.
-// TODO: More tokens. See lang_design.txt.
-%token <integer> Integer
-%token <real> Float
-%token <identifier> Identifier
-%token <aMember> ifKeyword;
-%token <aMember> lBracket;
-%token <aMember> rBracket;
-%token <aMember> lParen;
-%token <aMember> rParen;
-%token <aMember> bitorOp;
-%token <aMember> bitandOp;
-%token <aMember> bitxorOp;
-%token <aMember> bitnotOp;
-%token <aMember> shlOp;
-%token <aMember> shrOp;
-%token <aMember> logorOp;
-%token <aMember> logandOp;
-%token <aMember> lognotOp;
-%token <aMember> addOp;
-%token <aMember> subOp;
-%token <aMember> divOp;
-%token <aMember> mulOp;
-%token <aMember> modOp;
-%token <aMember> equalsOp;
-%token <aMember> semicolon;
-%token <aMember> comma;
-%token <aMember> elseKeyword
-%token <aMember> constKeyword;
-%token <aMember> whileKeyword;
-%token <aMember> returnKeyword;
-%token <aMember> intType;
+%token <node>       binaryOp
+%token <identifier> identifier
+%token <integer>    integer
+%token <real>       real
+%token <node>       unaryOp
 
-
-
-// This defines the type of everything we use in our grammar.
-// TODO: Design our AST so these can have meaningful types.
-%type <aMember> Assignment
-%type <aMember> Block
-%type <aMember> Declaration
-%type <aMember> Declarations
-%type <aMember> DeclRepeat
-%type <aMember> DeclRepeats
-%type <aMember> ElseStatement
-%type <aMember> Expression
-%type <aMember> IfStatement
-%type <aMember> IntOperator
-%type <aMember> Operator
-%type <aMember> Program
-%type <aMember> ReturnStatement
-%type <aMember> Statement
-%type <aMember> Statements
-%type <aMember> Type
-%type <aMember> Value
-%type <aMember> WhileStatement
+%type <node>        Assignment
+%type <node>        Block
+%type <node>        Declaration
+%type <node>        Declarations
+%type <node>        DeclBase
+%type <node>        DeclList
+%type <node>        ElseStatement
+%type <node>        Expression
+%type <node>        IfStatement
+%type <node>        Literal
+%type <node>        Program
+%type <node>        ReturnStatement
+%type <node>        Statement
+%type <node>        Statements
+%type <node>        Type
+%type <node>        Value
+%type <node>        WhileStatement
 
 %union {
 	int integer;
 	double real;
-	char* identifier;
-	void* aMember; // Place holder so that it builds.
+	char identifier[1000];
+	int op; // TODO: Make this an enum class for operators.
+	void* node;
 }
 
 %%
+// TODO: Fix the 3 shift/reduce and 2 reduce/reduce conflicts.
 
 Program:
   Statements
 ;
 
-Block:
-  lBracket Statements rBracket
+Statements:
+  Statements Statement
 | Statement
 ;
 
-Statements:
-  Statements Statement
-| Block
-| Block Statements
-;
-
 Statement:
-  Declarations semicolon
-| Expression semicolon
+  Declarations ";"
+| Expression ";"
+| Block
 | IfStatement
 | WhileStatement
-| ReturnStatement semicolon
-| semicolon
+| ReturnStatement ";"
+| ";"
 ;
 
-// Some of this declaration code could be cleaned up.
+Block:
+  "{" Statements "}"
+;
+
+// Declarations code could still use some work.
 Declarations:
   Declaration
-| Type DeclRepeat
+| DeclList
 ;
 
-DeclRepeats:
-  DeclRepeat
-| DeclRepeat comma DeclRepeat
+DeclList:
+  DeclBase
+| DeclList "," DeclBase
 ;
 
-DeclRepeat:
+DeclBase:
   Assignment
-| Identifier
+| identifier
+;
+
+Assignment:
+// TODO: Handle Expressions with pointers. (Eventually)
+  identifier "=" Expression
+;
+
+Type:
+  "const" Type
+| identifier
+// For now, we'll just hard code the built-in type(s).
+| "int"
 ;
 
 Declaration:
-  Type Assignment
-| Type Identifier
+  Type DeclBase
 ;
 
 Expression:
   Assignment
-| lParen Expression rParen
-| Value Operator Expression
+| "(" Expression ")"
+| Expression binaryOp Expression
+| unaryOp Expression
 | Value
 ;
 
+Value:
+  identifier
+| Literal
+;
+
+Literal:
+// TODO: const char* and char literals. (Eventually)
+  integer
+| real
+;
+
 IfStatement:
-  ifKeyword lParen Expression rParen Block
-| ifKeyword lParen Expression rParen Block ElseStatement
+  "if" "(" Expression ")" Block
+| "if" "(" Expression ")" Block ElseStatement
 ;
 
 ElseStatement:
-  elseKeyword Block
-| elseKeyword IfStatement
+  "else" Block
+| "else" IfStatement
 ;
 
 WhileStatement:
-  whileKeyword lParen Expression rParen Block
+  "while" "(" Expression ")" Block
 ;
+
 ReturnStatement:
-// TODO: Make a ReturnKeyword token.
-  returnKeyword Expression
-;
-// For now lump all operators in one. Let a future step in the parser do
-//   operator precedence/type checking for now.
-// We might need the scanner to handle mulOpti-character literals here.
-// TODO: Make an Operator token or a token for each operator.
-Operator:
-  bitnotOp
-| lognotOp
-| modOp
-| bitxorOp
-| bitandOp
-| logandOp
-| mulOp
-| subOp
-| addOp
-| bitorOp
-| logorOp
-| shrOp
-| shlOp
-| divOp
-;
-
-// An optional operator for things that only take ints as there params.
-// Not currently used.
-// TODO: Make an IntOperator token or a token for each operator.
-IntOperator:
-  shrOp
-| shlOp
-;
-
-Assignment:
-  Identifier equalsOp Expression
-;
-
-Value:
-  Identifier
-| Integer
-| Float
-;
-
-Type:
-  constKeyword Type
-| Identifier
-| intType
+  "return" Expression ";"
 ;
 
 %%

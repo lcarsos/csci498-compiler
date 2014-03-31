@@ -2,108 +2,52 @@
 
 #include "language_0_parser.hpp"
 
+#include <cstring>
+
 %}
 
-/* Tokens used here are defined in the bison file.
-   TODO: Tokens for binary and uninary operators? */
-ifStr           "if"
-lBracketStr      "{"
-rBracketStr      "}"
-lParenStr        "("
-rParenStr        ")"
-bitandStr             "&"
-bitorStr	      "|"
-xorStr	              "^"
-bitnotStr	      "~"
-shlStr	              "<<"
-shrStr	              ">>"
-logorStr	      "||"
-logandStr	      "&&"
-lognotStr	      "!"
-addStr	              "+"
-subStr	              "-"
-divStr	              "/"
-mulStr	              "*"
-modStr	              "%"
-semicolonStr          ";"
-constStr	      "const"
-commaStr	      ","
-elseStr		      "else"
-whileStr	      "while"
-returnStr	      "return"
-equalsStr	      "="
-intStr		      "int"
 %%
-
-constStr { return constKeyword; }
-
-commaStr { return comma; }
-
-elseStr { return elseKeyword; }
-
-whileStr { return whileKeyword; }
-
-returnStr { return returnKeyword; }
-
-intStr { return intType; }
-
-equalsStr { return equalsOp; }
-
-semicolonStr { return semicolon; }
-
-bitandStr { return bitandOp; }
-
-bitorStr {  return bitorOp; }
-
-xorStr { return bitxorOp; }
-
-bitnotStr { return bitnotOp; }
-
-shlStr { return shlOp; }
-
-shrStr { return shrOp; }
-
-logorStr { return logorOp; }
-
-logandStr { return logandOp; }
-
-lognotStr { return lognotOp; }
-
-addStr { return addOp; }
-
-subStr { return subOp; }
-
-divStr { return divOp; }
-
-mulStr { return mulOp; }
-
-modStr { return modOp; }
-
-ifStr { return ifKeyword; }
-
-lBracketStr { return lBracket; }
-
-rBracketStr { return rBracket; }
-
-lParenStr { return lParen; }
-
-rParenStr { return rParen; }
 
 [+-]?[0-9]+ {
 	yylval.integer = atoi(yytext);
-	return Integer;
+	return integer;
 }
+
 [+-]?[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)? {
 	yylval.real = atof(yytext);
-	return Float;
+	return real;
 }
+
 [a-zA-Z_]+[a-zA-Z_0-9]* {
-	yylval.identifier = strdup(yytext);
-	return Identifier;
+	// TODO: Don't use snprintf or strdup.
+	strncpy(yylval.identifier, yytext, 999);
+	return identifier;
+}
+
+"&"|"|"|"^"|">"|"<"|"+"|"-"|"/"|"*"|"&&"|"||"|"<<"|">>" {
+	// This depends on the operator only being 1 or 2 characters long.
+	//   If it's only 1 long, yytext[1] will be 0 and we end up with the
+	//   ASCII representation of the character. Otherwise it's just like
+	//   C mutli-char literals.
+	// TODO: Return an enum class instead.
+	int op = yytext[0] + yytext[1] << 8;
+	yylval.op = op;
+	return binaryOp;
+}
+
+"/"|"*"|"-"|"~"|"!" {
+	// This depends on the operator only being 1 or 2 characters long.
+	//   If it's only 1 long, yytext[1] will be 0 and we end up with the
+	//   ASCII representation of the character. Otherwise it's just like
+	//   C mutli-char literals.
+	// TODO: Return an enum class instead.
+	int op = yytext[0] + yytext[1] << 8;
+	yylval.op = op;
+	return unaryOp;
 }
 
 . {
-	// Do nothing with unknown characters.
+	// Pass unknown characters through to Bison, they might be important.
 	continue;
 }
 
