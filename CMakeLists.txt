@@ -85,6 +85,7 @@ include_directories(
 
 add_executable(frontend
 	frontend.cpp
+	ast.cpp
 
 	${BIN}/language_0_scanner.cpp
 	${BIN}/language_0_parser.cpp
