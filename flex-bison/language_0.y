@@ -18,11 +18,17 @@
 //    the AST, but until then it just gets in the way.
 //%parse-param {ASTNode& program}.
 
-%token <node>       binaryOp
-%token <identifier> identifier
 %token <integer>    integer
 %token <real>       real
-%token <node>       unaryOp
+%token <str>        identifier
+%token <str>        operatorKeyword
+
+// Reserved words.
+%token              constQualifier
+%token              elseKeyword
+%token              ifKeyword
+%token              returnKeyword
+%token              whileKeyword
 
 %type <node>        Assignment
 %type <node>        Block
@@ -45,7 +51,7 @@
 %union {
 	int integer;
 	double real;
-	char identifier[1000];
+	char str[1000];
 	int op; // TODO: Make this an enum class for operators.
 	void* node;
 }
@@ -63,17 +69,17 @@ Statements:
 ;
 
 Statement:
-  Declarations ";"
-| Expression ";"
+  Declarations ';'
+| Expression ';'
 | Block
 | IfStatement
 | WhileStatement
-| ReturnStatement ";"
-| ";"
+| ReturnStatement ';'
+| ';'
 ;
 
 Block:
-  "{" Statements "}"
+  '{' Statements '}'
 ;
 
 // Declarations code could still use some work.
@@ -84,7 +90,7 @@ Declarations:
 
 DeclList:
   DeclBase
-| DeclList "," DeclBase
+| DeclList ',' DeclBase
 ;
 
 DeclBase:
@@ -94,14 +100,12 @@ DeclBase:
 
 Assignment:
 // TODO: Handle Expressions with pointers. (Eventually)
-  identifier "=" Expression
+  identifier '=' Expression
 ;
 
 Type:
-  "const" Type
+  'const' Type
 | identifier
-// For now, we'll just hard code the built-in type(s).
-| "int"
 ;
 
 Declaration:
@@ -110,9 +114,9 @@ Declaration:
 
 Expression:
   Assignment
-| "(" Expression ")"
-| Expression binaryOp Expression
-| unaryOp Expression
+| '(' Expression ')'
+| Expression operatorKeyword Expression
+| operatorKeyword Expression
 | Value
 ;
 
@@ -128,21 +132,21 @@ Literal:
 ;
 
 IfStatement:
-  "if" "(" Expression ")" Block
-| "if" "(" Expression ")" Block ElseStatement
+  ifKeyword '(' Expression ')' Block
+| ifKeyword '(' Expression ')' Block ElseStatement
 ;
 
 ElseStatement:
-  "else" Block
-| "else" IfStatement
+  elseKeyword Block
+| elseKeyword IfStatement
 ;
 
 WhileStatement:
-  "while" "(" Expression ")" Block
+  whileKeyword '(' Expression ')' Block
 ;
 
 ReturnStatement:
-  "return" Expression ";"
+  'return' Expression ';'
 ;
 
 %%
