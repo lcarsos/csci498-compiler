@@ -74,7 +74,7 @@ Statement:
 | Block
 | IfStatement
 | WhileStatement
-| ReturnStatement ';'
+| ReturnStatement
 | ';'
 ;
 
@@ -104,7 +104,7 @@ Assignment:
 ;
 
 Type:
-  'const' Type
+  constQualifier Type
 | identifier
 ;
 
@@ -146,7 +146,7 @@ WhileStatement:
 ;
 
 ReturnStatement:
-  'return' Expression ';'
+  returnKeyword Expression ';'
 ;
 
 %%
