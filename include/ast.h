@@ -8,13 +8,14 @@ class ASTNode {
 public:
 
 	enum NodeType {
-		Literal, Symbol, Operator, Empty
+		Literal, Symbol, Operator, Empty, If, Else, Return, PrimitiveType
 	};
 
 	// All node creation goes through this function
 	static ASTNode* makeNode(NodeType type, std::string str = "");
 
 	void addChild(ASTNode* node);
+	void addChildren(ASTNode* node);
 
 	// removes children and returns them
 	std::shared_ptr<ASTNode> removeChildren();
@@ -28,8 +29,10 @@ public:
 	NodeType getType();
 
 protected:
+	ASTNode();
 	ASTNode(NodeType type, std::string str);
 
+	void addChild(ASTNode* node, ASTNode* right);  // optimization for addChildren by saving rightmost sibling
 	std::shared_ptr<ASTNode> leftMostChild;
 	ASTNode* parent; // non-ownership ptr
 	ASTNode* leftMostSibling; // non-ownership ptr
