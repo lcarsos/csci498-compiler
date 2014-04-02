@@ -21,6 +21,7 @@
 %token <integer>    integer
 %token <real>       real
 %token <str>        identifier
+%token <str>        unaryOperatorKeyword
 %token <str>        operatorKeyword
 
 // Reserved words.
@@ -32,7 +33,6 @@
 
 %type <node>        Assignment
 %type <node>        Block
-%type <node>        Declaration
 %type <node>        Declarations
 %type <node>        DeclBase
 %type <node>        DeclList
@@ -75,17 +75,16 @@ Statement:
 | IfStatement
 | WhileStatement
 | ReturnStatement
-| ';'
+| ';' {}
 ;
 
 Block:
-  '{' Statements '}'
+  '{' Statements '}' {}
 ;
 
 // Declarations code could still use some work.
 Declarations:
-  Declaration
-| DeclList
+  Type DeclList
 ;
 
 DeclList:
@@ -95,58 +94,54 @@ DeclList:
 
 DeclBase:
   Assignment
-| identifier
+| identifier   {}
 ;
 
 Assignment:
 // TODO: Handle Expressions with pointers. (Eventually)
-  identifier '=' Expression
+  identifier '=' Expression  {}
 ;
 
 Type:
-  constQualifier Type
-| identifier
-;
-
-Declaration:
-  Type DeclBase
+  constQualifier Type  {}
+| identifier           {}
 ;
 
 Expression:
   Assignment
-| '(' Expression ')'
-| Expression operatorKeyword Expression
-| operatorKeyword Expression
+| '(' Expression ')'                      {}
+| Value operatorKeyword Expression
+| unaryOperatorKeyword Expression         {}
 | Value
 ;
 
 Value:
-  identifier
+  identifier     {}
 | Literal
 ;
 
 Literal:
 // TODO: const char* and char literals. (Eventually)
-  integer
-| real
+  integer   {}
+| real      {}
 ;
 
 IfStatement:
-  ifKeyword '(' Expression ')' Block
-| ifKeyword '(' Expression ')' Block ElseStatement
+  ifKeyword '(' Expression ')' Block                {}
+| ifKeyword '(' Expression ')' Block ElseStatement  {}
 ;
 
 ElseStatement:
-  elseKeyword Block
-| elseKeyword IfStatement
+  elseKeyword Block         {}
+| elseKeyword IfStatement   {}
 ;
 
 WhileStatement:
-  whileKeyword '(' Expression ')' Block
+  whileKeyword '(' Expression ')' Block  {}
 ;
 
 ReturnStatement:
-  returnKeyword Expression ';'
+  returnKeyword Expression ';'   {}
 ;
 
 %%

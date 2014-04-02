@@ -2,6 +2,12 @@
 
 using namespace std;
 
+ASTNode::ASTNode(){
+	this->type = NodeType::Empty;
+	parent = nullptr;
+	leftMostSibling = nullptr;
+}
+
 ASTNode::ASTNode(NodeType type, string str){
 	this->type = type;
 	this->str = str;
@@ -14,10 +20,23 @@ ASTNode* ASTNode::makeNode(NodeType type, string str){
 }
 
 void ASTNode::addChild(ASTNode* node){
+	addChild(node, getRightMostChild());
+}
+
+void ASTNode::addChild(ASTNode* node, ASTNode* right){
 	node->parent = this;
-	auto right = getRightMostChild();
 	right->rightSibling = shared_ptr<ASTNode>(node);
 	node->leftMostSibling = right->leftMostSibling;
+}
+
+void ASTNode::addChildren(ASTNode* node){
+	auto current = node;
+	auto lag = getRightMostChild();
+	while (current){
+		addChild(current, lag);
+		lag = current;
+		current = current->rightSibling.get();
+	}
 }
 
 ASTNode* ASTNode::getLeftMostChild(){
@@ -30,9 +49,11 @@ ASTNode* ASTNode::getRightMostChild(){
 	if (!current)
 		return nullptr;
 
-	ASTNode* temp;
-	while (temp = current->rightSibling.get())
+	auto temp = current->rightSibling.get();
+	while (temp){
 		current = temp;
+		temp = current->rightSibling.get();
+	}
 
 	return current;
 }

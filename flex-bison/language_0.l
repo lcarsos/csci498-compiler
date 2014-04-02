@@ -45,7 +45,12 @@
 	return identifier;
 }
 
-"~"|"~"|"&"|"|"|"^"|">"|"<"|"+"|"-"|"/"|"*"|"&&"|"||"|"<<"|">>" {
+"~"|"&"|"+"|"-"|"*"|"!" {
+	strncpy(yylval.str, yytext, 999);
+	return unaryOperatorKeyword;
+}
+
+"&"|"|"|"^"|">"|"<"|"+"|"-"|"/"|"*"|"&&"|"||"|"<<"|">>"|"%"|"=="|"<="|">="|"!=" {
 	strncpy(yylval.str, yytext, 999);
 	return operatorKeyword;
 }
