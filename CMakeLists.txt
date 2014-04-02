@@ -93,6 +93,10 @@ add_executable(frontend
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
+
+	# Flex/Bison files.
+	flex-bison/language_0.l
+	flex-bison/language_0.y
 )
 
 target_link_libraries(frontend fl)
