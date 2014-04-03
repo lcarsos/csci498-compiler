@@ -8,7 +8,7 @@ using namespace std;
 int yyparse();
 
 int main() {
-	yydebug = 1;
+//	yydebug = 1;
 	switch (yyparse()) {
 		case 0:
 			cout << "No errors with yyparse()!\n";

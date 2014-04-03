@@ -1,10 +1,12 @@
 %{
-	#include <iostream>
+  #include "ast.h"
+  #include <iostream>
+  #include <string>
 
-	// From flex
-	int yylex();
+  // From flex
+  int yylex();
 
-	void yyerror(const char*);
+  void yyerror(const char*);
 %}
 
 // Debugging flags.
@@ -25,17 +27,13 @@
 %token <str>        operatorKeyword
 
 // Reserved words.
-%token              constQualifier
-%token              elseKeyword
-%token              ifKeyword
-%token              returnKeyword
-%token              whileKeyword
+%token <str>        constQualifier
+%token <str>        elseKeyword
+%token <str>        ifKeyword
+%token <str>        returnKeyword
+%token <str>        whileKeyword
 
-%type <node>        Assignment
 %type <node>        Block
-%type <node>        Declarations
-%type <node>        DeclBase
-%type <node>        DeclList
 %type <node>        ElseStatement
 %type <node>        Expression
 %type <node>        IfStatement
@@ -44,108 +42,139 @@
 %type <node>        ReturnStatement
 %type <node>        Statement
 %type <node>        Statements
-%type <node>        Type
 %type <node>        Value
 %type <node>        WhileStatement
 
-%union {
-	int integer;
-	double real;
-	char str[1000];
-	int op; // TODO: Make this an enum class for operators.
-	void* node;
+%code requires {
+  #include "ast.h"
+  using namespace std;
+
+  class YYSTYPE {
+  public:
+    int integer;
+    double real;
+    char str[1000];
+    ASTNode node;
+  };
 }
 
 %%
 // TODO: Fix the 3 shift/reduce and 2 reduce/reduce conflicts.
 
 Program:
-  Statements
+  Statements {
+    cout << to_string($1) << endl;
+  }
 ;
 
 Statements:
-  Statements Statement
-| Statement
+  Statements Statement {
+    $$.addChild($2);
+  }
+| Statement {
+    $$ = ASTNode(ASTNode::Block);
+    $$.addChild($1);
+}
 ;
 
 Statement:
-  Declarations ';'
-| Expression ';'
-| Block
-| IfStatement
-| WhileStatement
-| ReturnStatement
-| ';' {}
+  Expression ';' {
+    $$ = $1;
+  }
+| Block {
+  $$ = $1;
+}
+| IfStatement {
+  $$ = $1;
+}
+| WhileStatement {
+  $$ = $1;
+}
+| ReturnStatement {
+  $$ = $1;
+}
+| ';' {
+  $$ = ASTNode(ASTNode::Expression);
+}
 ;
 
 Block:
-  '{' Statements '}' {}
-;
-
-// Declarations code could still use some work.
-Declarations:
-  Type DeclList
-;
-
-DeclList:
-  DeclBase
-| DeclList ',' DeclBase
-;
-
-DeclBase:
-  Assignment
-| identifier   {}
-;
-
-Assignment:
-// TODO: Handle Expressions with pointers. (Eventually)
-  identifier '=' Expression  {}
-;
-
-Type:
-  constQualifier Type  {}
-| identifier           {}
+  '{' Statements '}' {
+    $$ = $2;
+  }
 ;
 
 Expression:
-  Assignment
-| '(' Expression ')'                      {}
-| Value operatorKeyword Expression
-| unaryOperatorKeyword Expression         {}
-| Value
+  '(' Expression ')' {
+    $$ = $2;
+  }
+| Expression operatorKeyword Expression {
+  $$ = ASTNode(ASTNode::Expression, $2);
+  $$.addChild($1);
+  $$.addChild($3);
+}
+| Value {
+  $$ = $1;
+}
 ;
 
 Value:
-  identifier     {}
-| Literal
+  identifier {
+    $$ = ASTNode(ASTNode::Expression, $1);
+  }
+| Literal {
+    $$ = $1;
+}
 ;
 
 Literal:
 // TODO: const char* and char literals. (Eventually)
-  integer   {}
-| real      {}
+  integer {
+    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+  }
+| real {
+    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+}
 ;
 
 IfStatement:
-  ifKeyword '(' Expression ')' Block                {}
-| ifKeyword '(' Expression ')' Block ElseStatement  {}
+  ifKeyword '(' Expression ')' Block {
+    $$ = ASTNode(ASTNode::If);
+    $$.addChild($3);
+    $$.addChild($5);
+  }
+| IfStatement ElseStatement  {
+    $$ = $1;
+    $$.addChild($2);
+}
 ;
 
 ElseStatement:
-  elseKeyword Block         {}
-| elseKeyword IfStatement   {}
+  elseKeyword Block {
+    $$ = $2;
+  }
+| elseKeyword IfStatement {
+    $$ = $2;
+}
 ;
 
 WhileStatement:
-  whileKeyword '(' Expression ')' Block  {}
+  whileKeyword '(' Expression ')' Block {
+    $$ = ASTNode(ASTNode::While);
+    $$.addChild($3);
+    $$.addChild($5);
+  }
 ;
 
 ReturnStatement:
-  returnKeyword Expression ';'   {}
+  returnKeyword Expression ';' {
+    $$ = ASTNode(ASTNode::Return);
+    $$.addChild($2);
+  }
 ;
 
 %%
 
 void yyerror(const char* msg) {
-	std::cerr << "[Error] " << msg << std::endl;
+	cerr << "[Error] " << msg << endl;
 }

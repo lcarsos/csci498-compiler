@@ -1,5 +1,4 @@
 %{
-
 #include "language_0_parser.hpp"
 
 #include <cstring>
@@ -43,11 +42,6 @@
 [a-zA-Z_]+[a-zA-Z_0-9]* {
 	strncpy(yylval.str, yytext, 999);
 	return identifier;
-}
-
-"~"|"&"|"+"|"-"|"*"|"!" {
-	strncpy(yylval.str, yytext, 999);
-	return unaryOperatorKeyword;
 }
 
 "&"|"|"|"^"|">"|"<"|"+"|"-"|"/"|"*"|"&&"|"||"|"<<"|">>"|"%"|"=="|"<="|">="|"!=" {
