@@ -1,9 +1,12 @@
 %{
-#include "language_0_parser.hpp"
-
-#include <cstring>
-
+	#include "language_0_parser.hpp"
 %}
+
+BitwiseOp     "|"|"&"|"^"|"~"|"<<"|">>"
+ArithmeticOp  "+"|"-"|"*"|"/"|"%"|"++"|"--"
+CompoundOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"~="|"<<="|">>="
+LogicOp       "||"|"&&"|"!"
+ComparisionOp "<"|">"|"<="|">="|"!="|"=="
 
 %%
 
@@ -40,12 +43,12 @@
 }
 
 [a-zA-Z_]+[a-zA-Z_0-9]* {
-	strncpy(yylval.str, yytext, 999);
+	yylval.str = yytext;
 	return identifier;
 }
 
-"&"|"|"|"^"|">"|"<"|"+"|"-"|"/"|"*"|"&&"|"||"|"<<"|">>"|"%"|"=="|"<="|">="|"!=" {
-	strncpy(yylval.str, yytext, 999);
+{BitwiseOp}|{ArithmeticOp}|{CompoundOp}|{LogicOp}|{ComparisionOp} {
+	yylval.str = yytext;
 	return operatorKeyword;
 }
 

@@ -33,7 +33,9 @@
 %token <str>        returnKeyword
 %token <str>        whileKeyword
 
+%type <node>        Assignment
 %type <node>        Block
+%type <node>        Declaration
 %type <node>        ElseStatement
 %type <node>        Expression
 %type <node>        IfStatement
@@ -42,6 +44,7 @@
 %type <node>        ReturnStatement
 %type <node>        Statement
 %type <node>        Statements
+%type <node>        Type
 %type <node>        Value
 %type <node>        WhileStatement
 
@@ -49,11 +52,11 @@
   #include "ast.h"
   using namespace std;
 
-  class YYSTYPE {
-  public:
+  // Structs, unlike unions, allow class members.
+  struct YYSTYPE {
     int integer;
     double real;
-    char str[1000];
+    string str;
     ASTNode node;
   };
 }
@@ -63,6 +66,7 @@
 
 Program:
   Statements {
+    $$ = $1;
     cout << to_string($1) << endl;
   }
 ;
@@ -74,28 +78,62 @@ Statements:
 | Statement {
     $$ = ASTNode(ASTNode::Block);
     $$.addChild($1);
-}
+  }
 ;
 
 Statement:
-  Expression ';' {
+  Declaration ';' {
+    $$ = $1;
+  }
+| Expression ';' {
     $$ = $1;
   }
 | Block {
-  $$ = $1;
-}
+    $$ = $1;
+  }
 | IfStatement {
-  $$ = $1;
-}
+    $$ = $1;
+  }
 | WhileStatement {
-  $$ = $1;
-}
+    $$ = $1;
+  }
 | ReturnStatement {
-  $$ = $1;
-}
+    $$ = $1;
+  }
 | ';' {
-  $$ = ASTNode(ASTNode::Expression);
-}
+    $$ = ASTNode(ASTNode::Expression);
+  }
+;
+
+Declaration:
+  Type identifier {
+    $$ = ASTNode(ASTNode::Declaration);
+    $$.addChild($1);
+    $$.addChild(ASTNode(ASTNode::Symbol, $2));
+  }
+| Type Assignment {
+    $$ = ASTNode(ASTNode::Declaration);
+    $$.addChild($1);
+    $$.addChild($2);
+  }
+;
+
+Type:
+  constQualifier Type {
+    $$ = $2;
+    $$.makeConst();
+  }
+| identifier {
+    $$ = ASTNode(ASTNode::Symbol, $1);
+  }
+;
+
+Assignment:
+  identifier '=' Expression {
+    $$ = ASTNode(ASTNode::Assignment);
+    $$.addChild(ASTNode(ASTNode::Symbol, $1));
+    $$.addChild($3);
+  }
 ;
 
 Block:
@@ -109,22 +147,22 @@ Expression:
     $$ = $2;
   }
 | Expression operatorKeyword Expression {
-  $$ = ASTNode(ASTNode::Expression, $2);
-  $$.addChild($1);
-  $$.addChild($3);
-}
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
 | Value {
-  $$ = $1;
-}
+    $$ = $1;
+  }
 ;
 
 Value:
   identifier {
-    $$ = ASTNode(ASTNode::Expression, $1);
+    $$ = ASTNode(ASTNode::Symbol, $1);
   }
 | Literal {
     $$ = $1;
-}
+  }
 ;
 
 Literal:
@@ -134,7 +172,7 @@ Literal:
   }
 | real {
     $$ = ASTNode(ASTNode::Symbol, to_string($1));
-}
+  }
 ;
 
 IfStatement:
@@ -146,7 +184,7 @@ IfStatement:
 | IfStatement ElseStatement  {
     $$ = $1;
     $$.addChild($2);
-}
+  }
 ;
 
 ElseStatement:
@@ -155,7 +193,7 @@ ElseStatement:
   }
 | elseKeyword IfStatement {
     $$ = $2;
-}
+  }
 ;
 
 WhileStatement:
@@ -177,4 +215,4 @@ ReturnStatement:
 
 void yyerror(const char* msg) {
 	cerr << "[Error] " << msg << endl;
-}
+  }

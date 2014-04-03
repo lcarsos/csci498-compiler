@@ -11,7 +11,7 @@ int main() {
 //	yydebug = 1;
 	switch (yyparse()) {
 		case 0:
-			cout << "No errors with yyparse()!\n";
+			cout << "No errors!\n";
 			break;
 		case 1:
 			cout << "Syntax error!\n";

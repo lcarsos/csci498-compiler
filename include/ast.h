@@ -6,10 +6,13 @@
 class ASTNode {
 
 public:
+	// When adding to this, remember to adjust std::to_string in ast.cpp!
 	enum Type {
-		Block,
-		Else,
 		Empty,
+		Assignment,
+		Block,
+		Declaration,
+		Else,
 		Expression,
 		If,
 		Literal,
@@ -22,18 +25,20 @@ public:
 	void addChild(ASTNode node);
 
 	Type type;
+	bool isConst; // Only used by Symbol.
 	std::string str;
 	std::vector<ASTNode> children;
 
 	ASTNode()
-	: type(Empty), str() {}
+	: type(Empty), isConst(false), str() {}
 	ASTNode(Type type, std::string str = "")
-	: type(type), str(str) {}
+	: type(type), isConst(false), str(str) {}
+
+	void makeConst();
+	void makeUnconst();
 };
 
 std::ostream& operator<<(std::ostream& os, ASTNode& node);
 
-namespace std {
-	std::string to_string(const ASTNode& node);
-	std::string to_string(ASTNode::Type type);
-}
+std::string to_string(const ASTNode& node);
+std::string to_string(ASTNode::Type type);
