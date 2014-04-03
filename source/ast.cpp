@@ -15,11 +15,11 @@ void ASTNode::makeUnconst() {
 	isConst = false;
 }
 
-
 // Normal, not-pretty printing.
 ostream& operator<<(ostream& os, ASTNode& node) {
 	os << "(";
 	os << "" << to_string(node.type);
+	// Not all nodes have str information to display.
 	if (node.str.size() >= 1) {
 		os << ":\"" << node.str << "\"";
 	}
@@ -45,6 +45,11 @@ string to_string(const ASTNode& node) {
 
 	string res;
 	int depth = 0;
+
+	// This loop assumes parenthesis are balanced.
+	// Unless there are some in in quotes, this is reasonable.
+	// TODO: Handle '(' and ')' in string/char literals. (When we have them.)
+	// TODO: There may be a more elegant way to do this w/ library functions.
 	for (char c : str) {
 		switch (c) {
 		case '(':
@@ -57,13 +62,13 @@ string to_string(const ASTNode& node) {
 		case ')':
 			depth -= 1;
 			break;
-		// Don't send spaces or newlines to the final string.
+		// Don't send spaces or newlines from the old string to the new one.
 		case ' ': case '\n':
 			continue;
 		}
 		res += c;
 	}
-	// Make sure the first character is a '('
+	// Make sure the first character is '(' to ensure everything aligns well.
 	while (res[0] != '(') {
 		res.erase(res.begin());
 	}
@@ -72,6 +77,8 @@ string to_string(const ASTNode& node) {
 
 string to_string(ASTNode::Type type) {
 	switch (type) {
+	// Make sure every case is handled, when changing the enum delcaration
+	//   in ast.h.
 	case ASTNode::Empty:       return "Empty";       break;
 	case ASTNode::Assignment:  return "Assignment";  break;
 	case ASTNode::Block:       return "Block";       break;

@@ -4,14 +4,14 @@
 
 using namespace std;
 
-// Not declared in the header, apparently?
+// Not declared in the header.
 int yyparse();
 
 int main() {
 //	yydebug = 1;
 	switch (yyparse()) {
 		case 0:
-			cout << "No errors!\n";
+			// Silence is golden.
 			break;
 		case 1:
 			cout << "Syntax error!\n";

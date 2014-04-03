@@ -25,12 +25,18 @@ public:
 	void addChild(ASTNode node);
 
 	Type type;
-	bool isConst; // Only used by Symbol.
+	// Only used by Symbol.
+	bool isConst;
+	// Some nodes (e.g. int and float literals) need to save data, but not
+	//   as strings.
+	// TODO: More flexibility in type stored.
 	std::string str;
+
+	// TODO: Children should know about their parent.
 	std::vector<ASTNode> children;
 
 	ASTNode()
-	: type(Empty), isConst(false), str() {}
+	: type(Type::Empty), isConst(false), str() {}
 	ASTNode(Type type, std::string str = "")
 	: type(type), isConst(false), str(str) {}
 
