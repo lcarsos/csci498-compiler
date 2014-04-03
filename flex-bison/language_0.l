@@ -32,12 +32,12 @@ ComparisionOp "<"|">"|"<="|">="|"!="|"=="
 }
 
 
-[+-]?[0-9]+ {
+[0-9]+ {
 	yylval.integer = atoi(yytext);
 	return integer;
 }
 
-[+-]?[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)? {
+[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)? {
 	yylval.real = atof(yytext);
 	return real;
 }

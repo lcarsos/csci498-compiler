@@ -85,6 +85,9 @@ Statement:
   Declaration ';' {
     $$ = $1;
   }
+| Assignment ';' {
+    $$ = $1;
+  }
 | Expression ';' {
     $$ = $1;
   }
