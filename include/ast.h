@@ -36,7 +36,7 @@ public:
 	std::vector<ASTNode> children;
 
 	ASTNode()
-	: type(Type::Empty), isConst(false), str() {}
+	: type(Type::Empty), isConst(false) {}
 	ASTNode(Type type, std::string str = "")
 	: type(type), isConst(false), str(str) {}
 

@@ -38,8 +38,8 @@ string to_string(const ASTNode& node) {
 	if (node.str.length() >= 1) {
 		str += ":\"" + node.str + "\"";
 	}
-	for (ASTNode node : node.children) {
-		str += to_string(node);
+	for (const ASTNode& child : node.children) {
+		str += to_string(child);
 	}
 	str += ")";
 
