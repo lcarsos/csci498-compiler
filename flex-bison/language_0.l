@@ -1,3 +1,4 @@
+%option noyywrap
 %{
 	#include "language_0_parser.hpp"
 %}

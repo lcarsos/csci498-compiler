@@ -1,0 +1,5 @@
+int x;
+int y;
+x = 3 * 5;
+y = 7 + x;
+return x ^ y;

@@ -58,6 +58,10 @@
     double real;
     string str;
     ASTNode node;
+
+    // We should probably have a reasonable default constructor.
+    YYSTYPE()
+    : integer(), real() {}
   };
 }
 
@@ -67,7 +71,8 @@
 Program:
   Statements {
     $$ = $1;
-    cout << to_string($1) << endl;
+    $$.type = ASTNode::Program;
+    $$.print_tree(cout);
   }
 ;
 
