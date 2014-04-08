@@ -48,15 +48,12 @@ void ASTNode::print_tree(ostream& os) {
 void ASTNode::makeConst() {
 	isConst = true;
 }
-void ASTNode::makeUnconst() {
-	isConst = false;
-}
 
 string to_string(const ASTNode& node) {
 	string str;
 	// TODO: Stop copying over 200 nodes before any of the final ones,
 	//   which appear in the graph, are created.
-	str += "#" + to_string(node.uniqueID) + " ";
+	// str += "#" + to_string(node.uniqueID) + " ";
 	if (node.type != ASTNode::Symbol) {
 		str += to_string(node.type);
 	}

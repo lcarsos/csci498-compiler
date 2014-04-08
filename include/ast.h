@@ -33,7 +33,6 @@ public:
 	static int nodeCount;
 
 	void addChild(const ASTNode& node);
-	const ASTNode& getParent() const;
 
 	Type type;
 	size_t uniqueID;
@@ -63,7 +62,6 @@ public:
 	void print_tree(std::ostream& os);
 
 	void makeConst();
-	void makeUnconst();
 };
 
 std::string to_string(const ASTNode& node);
