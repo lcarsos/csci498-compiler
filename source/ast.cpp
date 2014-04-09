@@ -73,21 +73,22 @@ string to_string(const ASTNode& node) {
 
 string to_string(ASTNode::Type type) {
 	switch (type) {
-	// Make sure every case is handled, when changing the enum delcaration
+	// Make sure every case is handled, when changing the enum declaration
 	//   in ast.h.
-	case ASTNode::Empty:       return "Empty";
-	case ASTNode::Assignment:  return "Assignment";
-	case ASTNode::Block:       return "Block";
-	case ASTNode::Declaration: return "Declaration";
-	case ASTNode::Else:        return "Else";
-	case ASTNode::Expression:  return "Expression";
-	case ASTNode::If:          return "If";
-	case ASTNode::Literal:     return "Literal";
-	case ASTNode::Operator:    return "Operator";
-	case ASTNode::Program:     return "Program";
-	case ASTNode::Return:      return "Return";
-	case ASTNode::Symbol:      return "Symbol";
-	case ASTNode::While:       return "While";
+	case ASTNode::Empty:        return "Empty";
+	case ASTNode::Assignment:   return "Assignment";
+	case ASTNode::Block:        return "Block";
+	case ASTNode::Declaration:  return "Declaration";
+	case ASTNode::Declarations: return "Declarations";
+	case ASTNode::Else:         return "Else";
+	case ASTNode::Expression:   return "Expression";
+	case ASTNode::If:           return "If";
+	case ASTNode::Literal:      return "Literal";
+	case ASTNode::Operator:     return "Operator";
+	case ASTNode::Program:      return "Program";
+	case ASTNode::Return:       return "Return";
+	case ASTNode::Symbol:       return "Symbol";
+	case ASTNode::While:        return "While";
 	default:
 		return "? (" + to_string(type) + ")";
 	}

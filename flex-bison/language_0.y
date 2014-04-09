@@ -36,6 +36,8 @@
 %type <node>        Assignment
 %type <node>        Block
 %type <node>        Declaration
+%type <node>        Declarations
+%type <node>        DeclList
 %type <node>        ElseStatement
 %type <node>        Expression
 %type <node>        IfStatement
@@ -66,7 +68,7 @@
 }
 
 %%
-// TODO: Fix the 3 shift/reduce and 2 reduce/reduce conflicts.
+// TODO: Fix the 2 shift/reduce.
 
 Program:
   Statements {
@@ -87,7 +89,7 @@ Statements:
 ;
 
 Statement:
-  Declaration ';' {
+  Declarations ';' {
     $$ = $1;
   }
 | Assignment ';' {
@@ -113,16 +115,31 @@ Statement:
   }
 ;
 
-Declaration:
-  Type identifier {
-    $$ = ASTNode(ASTNode::Declaration);
-    $$.addChild($1);
-    $$.addChild(ASTNode(ASTNode::Symbol, $2));
+Declarations:
+  Type DeclList {
+    $$ = ASTNode(ASTNode::Declarations);
+	$$.addChild($1);
+	$$.addChild($2);
   }
-| Type Assignment {
+;
+
+DeclList:
+  Declaration {
+    $$ = $1;
+  }
+| DeclList ',' Declaration {
+    $$.addChild($3);
+  }
+;
+
+Declaration:
+  Assignment {
     $$ = ASTNode(ASTNode::Declaration);
     $$.addChild($1);
-    $$.addChild($2);
+  }
+| identifier {
+    $$ = ASTNode(ASTNode::Declaration);
+    $$.addChild(ASTNode(ASTNode::Symbol, $1));
   }
 ;
 
@@ -148,13 +165,16 @@ Block:
   '{' Statements '}' {
     $$ = $2;
   }
+  | '{' '}' {
+    $$ = ASTNode(ASTNode::Block);
+  }
 ;
 
 Expression:
   '(' Expression ')' {
     $$ = $2;
   }
-| Expression operatorKeyword Expression {
+| Expression operatorKeyword Value {
     $$ = ASTNode(ASTNode::Expression, $2);
     $$.addChild($1);
     $$.addChild($3);
@@ -189,9 +209,11 @@ IfStatement:
     $$.addChild($3);
     $$.addChild($5);
   }
-| IfStatement ElseStatement  {
-    $$ = $1;
-    $$.addChild($2);
+| ifKeyword '(' Expression ')' Block ElseStatement  {
+    $$ = ASTNode(ASTNode::If);
+    $$.addChild($3);
+    $$.addChild($5);
+    $$.addChild($6);
   }
 ;
 

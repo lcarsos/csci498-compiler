@@ -14,6 +14,7 @@ public:
 		Assignment,
 		Block,
 		Declaration,
+		Declarations,
 		Else,
 		Expression,
 		If,
