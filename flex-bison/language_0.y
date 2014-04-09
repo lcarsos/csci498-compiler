@@ -118,13 +118,19 @@ Declarations:
   Type DeclList {
     $$ = ASTNode(ASTNode::Declarations);
 	$$.addChild($1);
-	$$.addChild($2);
+	for(auto& child: $2.children){
+		$$.addChild(child);
+	}
   }
 ;
 
 DeclList:
   Declaration {
-    $$ = $1;
+    if($$.type != ASTNode::Declaration){
+	  $$ = ASTNode(ASTNode::Declaration);
+	} 
+
+    $$.addChild($1);
   }
 | DeclList ',' Declaration {
     $$.addChild($3);
@@ -133,12 +139,10 @@ DeclList:
 
 Declaration:
   Assignment {
-    $$ = ASTNode(ASTNode::Declaration);
-    $$.addChild($1);
+    $$ = $1;
   }
 | identifier {
-    $$ = ASTNode(ASTNode::Declaration);
-    $$.addChild(ASTNode(ASTNode::Symbol, $1));
+    $$ = ASTNode(ASTNode::Symbol, $1);
   }
 ;
 
