@@ -68,7 +68,6 @@
 }
 
 %%
-// TODO: Fix the 2 shift/reduce.
 
 Program:
   Statements {
