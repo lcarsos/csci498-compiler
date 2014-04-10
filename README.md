@@ -37,38 +37,25 @@ The binary you're interested in is called `frontend`.
     x = 5;
     y = 10;
     int z = x * y ^ 7;
-    206 #206 Program
-    204 #204 Declaration
-    203 #203  'int'
-    205 #205  'x'
-    208 #208 Declaration
-    207 #207  'int'
-    209 #209  'y'
-    211 #211 Assignment
-    212 #212  'x'
-    210 #210  '5'
-    214 #214 Assignment
-    215 #215  'y'
-    213 #213  '10'
-    224 #224 Declaration
-    216 #216  'int'
-    222 #222 Assignment
-    223 #223  'z'
-    221 #221 Expression '*'
-    217 #217  'x'
-    220 #220 Expression '^'
-    218 #218  'y'
-    219 #219  '7'
+    207 Program
+    206 Declarations
+    203  'int'
+    204  'x'
+    211 Declarations
+    208  'int'
+    209  'y'
+    213 Assignment
+    214  'y'
+    212  '5'
+    216 Assignment
+    217  'y'
+    215  '10'
 
-    206 204 208 211 214 224
-    204 203 205
-    208 207 209
-    211 212 210
-    214 215 213
-    224 216 222
-    222 223 221
-    221 217 220
-    220 218 219
+    207 206 211 213 216
+    206 203 204
+    211 208 209
+    213 214 212
+    216 217 215
 
 
 What we're suppose to do
