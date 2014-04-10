@@ -24,7 +24,17 @@
 %token <real>       real
 %token <str>        identifier
 %token <str>        unaryOperatorKeyword
-%token <str>        operatorKeyword
+%token <str>        assignmentOperatorKeyword
+%token <str>        binaryOperatorKeyword0
+%token <str>        binaryOperatorKeyword1
+%token <str>        binaryOperatorKeyword2
+%token <str>        binaryOperatorKeyword3
+%token <str>        binaryOperatorKeyword4
+%token <str>        binaryOperatorKeyword5
+%token <str>        binaryOperatorKeyword6
+%token <str>        binaryOperatorKeyword7
+%token <str>        binaryOperatorKeyword8
+%token <str>        binaryOperatorKeyword9
 
 // Reserved words.
 %token <str>        constQualifier
@@ -40,6 +50,17 @@
 %type <node>        DeclList
 %type <node>        ElseStatement
 %type <node>        Expression
+%type <node>        PrimaryTerm
+%type <node>        TermPrecedence0
+%type <node>        TermPrecedence1
+%type <node>        TermPrecedence2
+%type <node>        TermPrecedence3
+%type <node>        TermPrecedence4
+%type <node>        TermPrecedence5
+%type <node>        TermPrecedence6
+%type <node>        TermPrecedence7
+%type <node>        TermPrecedence8
+%type <node>        TermPrecedence9
 %type <node>        IfStatement
 %type <node>        Literal
 %type <node>        Program
@@ -49,6 +70,7 @@
 %type <node>        Type
 %type <node>        Value
 %type <node>        WhileStatement
+%type <str>         assignmentOperator
 
 %code requires {
   #include "ast.h"
@@ -89,9 +111,6 @@ Statements:
 
 Statement:
   Declarations ';' {
-    $$ = $1;
-  }
-| Assignment ';' {
     $$ = $1;
   }
 | Expression ';' {
@@ -173,19 +192,147 @@ Block:
   }
 ;
 
+// the assignment operators have the lowest precedence so they come first
 Expression:
-  '(' Expression ')' {
-    $$ = $2;
+
+  // this rule is right recursive because it is right associative.
+  TermPrecedence9 assignmentOperator Expression {
+    $$ = ASTNode(ASTNode::Assignment, $2);
+    $$.addChild($1);
+    $$.addChild($3);
   }
-| Expression operatorKeyword Value {
+| TermPrecedence9 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence9:
+  TermPrecedence9 binaryOperatorKeyword9 TermPrecedence8 {
     $$ = ASTNode(ASTNode::Expression, $2);
     $$.addChild($1);
     $$.addChild($3);
+  }
+| TermPrecedence8 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence8:
+  TermPrecedence8 binaryOperatorKeyword8 TermPrecedence7 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence7 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence7:
+  TermPrecedence7 binaryOperatorKeyword7 TermPrecedence6 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence6 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence6:
+  TermPrecedence6 binaryOperatorKeyword6 TermPrecedence5 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence5 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence5:
+  TermPrecedence5 binaryOperatorKeyword5 TermPrecedence4 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence4 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence4:
+  TermPrecedence4 binaryOperatorKeyword4 TermPrecedence3 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence3 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence3:
+  TermPrecedence3 binaryOperatorKeyword3 TermPrecedence2 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence2 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence2:
+  TermPrecedence2 binaryOperatorKeyword2 TermPrecedence1 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence1 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence1:
+  TermPrecedence1 binaryOperatorKeyword1 TermPrecedence0 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| TermPrecedence0 {
+    $$ = $1;
+  }
+;
+
+TermPrecedence0:
+  TermPrecedence0 binaryOperatorKeyword0 PrimaryTerm {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
+| PrimaryTerm {
+    $$ = $1;
+  }
+;
+
+PrimaryTerm:
+  '(' Expression ')' {
+    $$ = $2;
   }
 | Value {
     $$ = $1;
   }
 ;
+
+// required because '=' needs special significance in assignment and therefore can't be apart of the assignmentOperatorKeyword regex
+assignmentOperator:
+  '=' {
+    $$ = string("=");
+  }
+| assignmentOperatorKeyword {
+    $$ = $1;
+  }
 
 Value:
   identifier {

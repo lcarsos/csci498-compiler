@@ -3,11 +3,19 @@
 	#include "language_0_parser.hpp"
 %}
 
-BitwiseOp     "|"|"&"|"^"|"~"|"<<"|">>"
-ArithmeticOp  "+"|"-"|"*"|"/"|"%"|"++"|"--"
-CompoundOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"~="|"<<="|">>="
-LogicOp       "||"|"&&"|"!"
-ComparisionOp "<"|">"|"<="|">="|"!="|"=="
+UnaryOp       "!"|"~"|"++"|"--"
+BinaryOp0       "*"|"/"|"%"
+BinaryOp1       "+"|"-"
+BinaryOp2       ">>"|"<<"
+BinaryOp3       "<"|">"|"<="|">="
+BinaryOp4       "=="|"!="
+BinaryOp5       "&"
+BinaryOp6       "^"
+BinaryOp7       "|"
+BinaryOp8       "&&"
+BinaryOp9       "||"
+
+AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 
 %%
 
@@ -48,9 +56,59 @@ ComparisionOp "<"|">"|"<="|">="|"!="|"=="
 	return identifier;
 }
 
-{BitwiseOp}|{ArithmeticOp}|{CompoundOp}|{LogicOp}|{ComparisionOp} {
+{BinaryOp0} {
 	yylval.str = yytext;
-	return operatorKeyword;
+	return binaryOperatorKeyword0;
+}
+
+{BinaryOp1} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword1;
+}
+
+{BinaryOp2} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword2;
+}
+
+{BinaryOp3} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword3;
+}
+
+{BinaryOp4} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword4;
+}
+
+{BinaryOp5} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword5;
+}
+
+{BinaryOp6} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword6;
+}
+
+{BinaryOp7} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword7;
+}
+
+{BinaryOp8} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword8;
+}
+
+{BinaryOp9} {
+	yylval.str = yytext;
+	return binaryOperatorKeyword9;
+}
+
+{AssignmentOp} {
+	yylval.str = yytext;
+	return assignmentOperatorKeyword;
 }
 
 . {
