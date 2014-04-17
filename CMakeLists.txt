@@ -26,6 +26,8 @@ endif()
 # For convience.
 set(BIN ${CMAKE_CURRENT_BINARY_DIR})
 
+# Store the auto-generated files in their own directory.
+file(MAKE_DIRECTORY ${BIN}/flex-bison-autogen)
 FLEX_TARGET(
 	SCANNER flex-bison/language_0.l
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp COMPILE_FLAGS "${FLEX_FLAGS}")
@@ -46,10 +48,11 @@ if(MSVC)
 	add_definitions(
 		# Anything higher will start checking the standard headers. Yes, really.
 		/W4
-	)	
+	)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
-		${BIN}/flex-bison-autogen/language_0_scanner.cpp ${BIN}/flex-bison-autogen/language_0_parser.cpp
+		${BIN}/flex-bison-autogen/language_0_scanner.cpp
+		${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS /W0
 )
 # Technically, this only works for GCC/Clang. If someone tries using
@@ -73,7 +76,8 @@ else()
 	)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
-		${BIN}/flex-bison-autogen/language_0_scanner.cpp ${BIN}/flex-bison-autogen/language_0_parser.cpp
+		${BIN}/flex-bison-autogen/language_0_scanner.cpp
+		${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS -w
 )
 endif()
