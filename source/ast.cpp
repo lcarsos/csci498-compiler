@@ -4,28 +4,26 @@
 #include <sstream>
 #include <unordered_map>
 
-using namespace std;
-
 int ASTNode::nodeCount = 0;
 
 void ASTNode::addChild(const ASTNode& node) {
 	children.push_back(node);
 }
 
-void ASTNode::find_all_children(vector<ASTNode>& nodes) const {
+void ASTNode::find_all_children(std::vector<ASTNode>& nodes) const {
 	nodes.push_back(*this);
 	for (const ASTNode& child : children) {
 		child.find_all_children(nodes);
 	}
 }
 
-void ASTNode::print_tree(ostream& os) {
-	vector<ASTNode> allChildren;
+void ASTNode::print_tree(std::ostream& os) {
+    std::vector<ASTNode> allChildren;
 	find_all_children(allChildren);
 
 	// We print the uniqueID of each node and its name first and foremost.
 	for (const ASTNode& node : allChildren) {
-		os << node.uniqueID << " " << to_string(node) << endl;
+		os << node.uniqueID << " " << to_string(node) << std::endl;
 	}
 	// Separate the 'declarations' and 'definitions'.
 	os << "\n";
@@ -40,7 +38,7 @@ void ASTNode::print_tree(ostream& os) {
 		for (const ASTNode& child : node.children) {
 			os << child.uniqueID << " ";
 		}
-		os << endl;
+		os << std::endl;
 	}
 
 }
@@ -49,8 +47,8 @@ void ASTNode::makeConst() {
 	isConst = true;
 }
 
-string to_string(const ASTNode& node) {
-	string str;
+std::string to_string(const ASTNode& node) {
+    std::string str;
 	// TODO: Stop copying over 200 nodes before any of the final ones,
 	//   which appear in the graph, are created.
 	// str += "#" + to_string(node.uniqueID) + " ";
@@ -71,7 +69,7 @@ string to_string(const ASTNode& node) {
 	return str;
 }
 
-string to_string(ASTNode::Type type) {
+std::string to_string(size_t type) {
 	switch (type) {
 	// Make sure every case is handled, when changing the enum declaration
 	//   in ast.h.

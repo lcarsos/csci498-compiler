@@ -10,7 +10,7 @@ class ASTNode {
 public:
 	// When adding to this, remember to adjust std::to_string in ast.cpp!
 	enum Type {
-		Empty,
+		Empty = 0,
 		Assignment,
 		Block,
 		Declaration,
@@ -66,7 +66,7 @@ public:
 };
 
 std::string to_string(const ASTNode& node);
-std::string to_string(ASTNode::Type type);
+std::string to_string(size_t type);
 
 bool operator==(const ASTNode& a, const ASTNode& b);
 
