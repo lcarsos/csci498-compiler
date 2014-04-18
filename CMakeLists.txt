@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.0)
+cmake_minimum_required(VERSION 2.8)
 
 project(HellmanCompiler CXX)
 
@@ -44,25 +44,26 @@ if(MSVC)
 
 	set(CMAKE_EXE_LINKER_FLAGS
 		"${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO"
-	)
+		)
 	add_definitions(
 		# Anything higher will start checking the standard headers. Yes, really.
 		/W4
-	)
+		)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
 		${BIN}/flex-bison-autogen/language_0_scanner.cpp
 		${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS /W0
-)
-# Technically, this only works for GCC/Clang. If someone tries using
-#     another compiler, maybe Intel?, CMake will get confused.
+		)
+	# Technically, this only works for GCC/Clang. If someone tries using
+	#     another compiler, maybe Intel?, CMake will get confused.
 else()
 	# Difference versions of GCC/Clang use different flags for C++11.
 	#   So we need to check which one is available.
 	#   (Alamode uses c++0x, but anything from the past 2.5 years uses c++11)
 	include(CheckCXXCompilerFlag)
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 	if (CXX11)
 		add_definitions("-std=c++11")
 	else()
@@ -71,21 +72,18 @@ else()
 		add_definitions("-std=c++0x")
 	endif()
 
-	add_definitions(
-		-Wall -Wextra
-	)
 	# Disable warnings in auto-generated files. We don't have control over them.
 	set_source_files_properties(
 		${BIN}/flex-bison-autogen/language_0_scanner.cpp
 		${BIN}/flex-bison-autogen/language_0_parser.cpp
 		PROPERTIES COMPILE_FLAGS -w
-)
+		)
 endif()
 
 include_directories(
 	include
 	${BIN}/flex-bison-autogen
-)
+	)
 
 add_executable(frontend
 	# Source files.
@@ -101,7 +99,7 @@ add_executable(frontend
 	# Flex/Bison files.
 	flex-bison/language_0.l
 	flex-bison/language_0.y
-)
+	)
 
 target_link_libraries(frontend fl)
 set_property(TARGET frontend PROPERTY FOLDER "IncludesL")

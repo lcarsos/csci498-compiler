@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 // Not declared in the header.
 int yyparse();
 
@@ -14,12 +12,12 @@ int main() {
 			// Silence is golden.
 			break;
 		case 1:
-			cout << "Syntax error!\n";
+            std::cout << "Syntax error!" << std::endl;
 			break;
 		case 2:
-			cout << "Memory error!\n";
+            std::cout << "Memory error!" << std::endl;
 			break;
 		default:
-			cout << "Unknown error.\n";
+            std::cout << "Unknown error." << std::endl;
 	}
 }
