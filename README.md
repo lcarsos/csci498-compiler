@@ -6,27 +6,11 @@ Building
 
 You'll need CMake, Flex, Bison, and your favorite C++ compiler.
 
-Clone or unzip the source somewhere.
-
-    $ mkdir Hellman
-    $ cd Hellman
-    $ git clone https://github.com/MattWesemann/Compiler.git
-
 Make a build directory. It should work in or out of the source directory, but naming doesn't matter. I like keeping everything packaged under another directory, but they can be anywehre.
 
     $ mkdir build
     $ cd build
-
-Call CMake, passing in your generator and the path to the source you cloned or unzipped earlier.
-
-    $ cmake -G "Unix Makefiles" ../Compiler/
-
-Make the directory for auto-generated files. CMake doesn't do this and we're working on it.
-
-    $ mkdir flex-bison-autogen
-
-Run `make`
-
+    $ cmake ..
     $ make
 
 The binary you're interested in is called `frontend`.
