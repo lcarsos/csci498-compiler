@@ -1,6 +1,8 @@
 %option noyywrap
 %{
 	#include "language_0_parser.hpp"
+
+    extern "C" int yylex();
 %}
 
 UnaryOp       "!"|"~"|"++"|"--"

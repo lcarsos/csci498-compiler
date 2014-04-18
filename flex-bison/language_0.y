@@ -3,10 +3,10 @@
   #include <iostream>
   #include <string>
 
-  // From flex
-  int yylex();
+// From flex
+  extern "C" int yylex();
 
-  void yyerror(const char*);
+void yyerror(const char*);
 %}
 
 // Debugging flags.
