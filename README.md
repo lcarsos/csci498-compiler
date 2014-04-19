@@ -4,43 +4,60 @@ Generate an AST
 Building
 --------
 
-You'll need CMake, Flex, Bison, and your favorite C++ compiler.
+You'll need:
 
-Make a build directory. It should work in or out of the source directory, but naming doesn't matter. I like keeping everything packaged under another directory, but they can be anywehre.
+1. [CMake](http://www.cmake.org/) **2.8**
 
-    $ mkdir build
-    $ cd build
-    $ cmake ..
+2. Flex and Bison **2.5**
+
+3. Your favorite **C++11** compiler. Any up-to-date GCC, Clang, or Intel compiler should work fine.
+
+4. Optionally, [Graphvis](http://www.graphviz.org/) to generate AST diagrams.
+
+
+    **Notes for Windows users**:
+
+    - Our build files depend on a special Flex and Bison port. Get it [here](http://sourceforge.net/projects/winflexbison/).
+
+    - If you want to use Visual Studio's compiler, you'll need 2013 to ensure C++11 features are available. You may want to consider using Intel's C++ compiler as it is further along the adoption process.
+
+Clone or unzip the source somewhere. Here we'll make a parent directory, `Hellman`, with subdirectories for the source code and one for each build configuration used.
+
+    $ mkdir Hellman
+    $ cd Hellman
+    $ git clone https://github.com/sgonzalez/csci498-compiler.git Kompiler
+
+Next, make a build directory.
+
+    $ mkdir build-debug
+    $ cd build-debug
+
+Call CMake, passing in your prefered generator and the path to the source you cloned or unzipped earlier. You can see a list of CMake generators for your system by running `cmake` with no arguments. You'll also want to define any Debug/Release related flags here, unless you're generating for an IDE. In this example, we assume a Unix-like system.
+
+    $ cmake -G "Unix Makefiles" ../Kompiler/
+
+Then all you need to do is run `make`.
+
     $ make
 
-The binary you're interested in is called `frontend`.
+For an optimized Makefiles directory, repeat the steps above but add `-DCMAKE_BUILD_TYPE=Release` to the cmake invocation. The default `CMAKE_BUILD_TYPE` changes with compilers.
 
-    $ ./frontend
-    int x;
-    int y;
-    x = 5;
-    y = 10;
-    int z = x * y ^ 7;
-    207 Program
-    206 Declarations
-    203  'int'
-    204  'x'
-    211 Declarations
-    208  'int'
-    209  'y'
-    213 Assignment
-    214  'y'
-    212  '5'
-    216 Assignment
-    217  'y'
-    215  '10'
+The binary you're interested in after building is called `frontend`. You can pipe the output from `frontend` to `parse-tree-to-graphvis.py` and that output to the Graphvis program `dot` to generate the AST tree.
 
-    207 206 211 213 216
-    206 203 204
-    211 208 209
-    213 214 212
-    216 217 215
+From `Hellman` in the previous example:
 
+    $ cat ./Kompiler/examples/standard.lang0 | ./frontend | ./Kompiler/parse-tree-to-graphvis.py | dot -Tpng -o tree.png
+
+In one go:
+
+    $ mkdir Hellman
+    $ cd Hellman
+    $ git clone https://github.com/sgonzalez/csci498-compiler.git Kompiler
+    $ mkdir build-debug
+    $ cd build-debug
+    $ cmake -G "Unix Makefiles" ../Kompiler/
+    $ make
+    $ cat ./Kompiler/examples/standard.lang0 | ./frontend | ./Kompiler/parse-tree-to-graphvis.py | dot -Tpng -o tree.png
 
 What we're suppose to do
 ------------------------
@@ -62,6 +79,4 @@ What we're suppose to do
 
 - Generate line/column annotated error messages to stderr.
 
-- Print the AST to stdout.
-
-- Return 0 on successful AST creation.
+- Print information about scoping and symbols to stdout on a succesful go.
