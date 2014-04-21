@@ -12,8 +12,16 @@ class DataBlock {
     DataBlock();
     DataBlock(unsigned long initSize);
     ~DataBlock();
-    nameRef insert(const char *data);
-    std::string get(nameRef ref);
+
+    // get_name is a way of retrieving the string value stored at a location 
+    // in the namespace.
+    std::string getName(nameRef ref);
+
+    // Lookup checks if a name is in the namespace, returns that if so,
+    //  otherwise adds to the table and then returns that.
+    nameRef lookup(const char *data);
+    nameRef lookup(std::string data);
+
 #ifndef NDEBUG
     char* getDatablock() { return dataStore; }
     unsigned long getSize() { return size; }
@@ -21,11 +29,14 @@ class DataBlock {
 #endif
 
     private:
-    void grow();
     char* dataStore;
     unsigned long size;
     unsigned long length;
     static const unsigned long initialSize = 20;
+
+    void grow();
+    nameRef insert(const char *data);
+    nameRef insert(std::string data);
 };
 
 #endif
