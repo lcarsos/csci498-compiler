@@ -96,7 +96,7 @@ add_executable(frontend
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
-    source/datablock.h
+    include/datablock.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
