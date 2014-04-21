@@ -14,7 +14,7 @@ void yyerror(const char*);
 //   (They are VERY verbose!)
 %debug
 %error-verbose
-%define parse.lac full
+//%define parse.lac full
 
 // This adds additonal arguments to yyparse. We can use it to return
 //    the AST, but until then it just gets in the way.
@@ -147,7 +147,7 @@ DeclList:
   Declaration {
     if($$.type != ASTNode::Declaration){
 	  $$ = ASTNode(ASTNode::Declaration);
-	} 
+	}
 
     $$.addChild($1);
   }

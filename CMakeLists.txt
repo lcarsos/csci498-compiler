@@ -89,6 +89,7 @@ add_executable(frontend
 	# Source files.
 	source/frontend.cpp
 	source/ast.cpp
+	source/symboltable.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
