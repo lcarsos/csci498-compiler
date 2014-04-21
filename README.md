@@ -24,6 +24,7 @@ You'll need:
 Clone or unzip the source somewhere. There are many tutorials on the Internet to help with this step.
 
 This project uses CMake as its build tool. The canonical commands for CMake look like
+
     mkdir build
     cd build
     cmake ..
