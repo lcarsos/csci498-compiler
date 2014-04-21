@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AST_H
+#define AST_H
 
 #include <array>
 #include <iostream>
@@ -70,3 +71,4 @@ std::string to_string(size_t type);
 
 bool operator==(const ASTNode& a, const ASTNode& b);
 
+#endif
