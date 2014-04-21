@@ -1,5 +1,5 @@
-Generate an AST
-===============
+Building a Compiler
+===================
 
 Building
 --------
@@ -8,7 +8,7 @@ You'll need:
 
 1. [CMake](http://www.cmake.org/) **2.8**
 
-2. Flex and Bison **2.5**
+2. Flex and Bison **>=2.5**
 
 3. Your favorite **C++11** compiler. Any up-to-date GCC, Clang, or Intel compiler should work fine.
 
@@ -21,45 +21,31 @@ You'll need:
 
     - If you want to use Visual Studio's compiler, you'll need 2013 to ensure C++11 features are available. You may want to consider using Intel's C++ compiler as it is further along the adoption process.
 
-Clone or unzip the source somewhere. Here we'll make a parent directory, `Hellman`, with subdirectories for the source code and one for each build configuration used.
+Clone or unzip the source somewhere. There are many tutorials on the Internet to help with this step.
 
-    $ mkdir Hellman
-    $ cd Hellman
-    $ git clone https://github.com/sgonzalez/csci498-compiler.git Kompiler
+This project uses CMake as its build tool. The canonical commands for CMake look like
+    mkdir build
+    cd build
+    cmake ..
+    make
 
-Next, make a build directory.
+This method presumes you create the build directory at the root directory of the repository. If you want to deviate from the canonical form,
 
-    $ mkdir build-debug
-    $ cd build-debug
+    <make a build directery>
+    <change into the build directory>
+    cmake [options] <path-to-source>
+    make
 
-Call CMake, passing in your prefered generator and the path to the source you cloned or unzipped earlier. You can see a list of CMake generators for your system by running `cmake` with no arguments. You'll also want to define any Debug/Release related flags here, unless you're generating for an IDE. In this example, we assume a Unix-like system.
+For a list of cmake options, please review the cmake man file or [online documentation](http://www.cmake.org/cmake/help/v2.8.8/cmake.html#section_Usage).
 
-    $ cmake -G "Unix Makefiles" ../Kompiler/
-
-Then all you need to do is run `make`.
-
-    $ make
-
-For an optimized Makefiles directory, repeat the steps above but add `-DCMAKE_BUILD_TYPE=Release` to the cmake invocation. The default `CMAKE_BUILD_TYPE` changes with compilers.
+Running
+-------
 
 The binary you're interested in after building is called `frontend`. You can pipe the output from `frontend` to `parse-tree-to-graphvis.py` and that output to the Graphvis program `dot` to generate the AST tree.
 
-From `Hellman` in the previous example:
+    ./frontend < /path/to/repo/examples/standard.lang0 | python /path/to/repo/parse-tree-to-graphvis.py | dot -Tpng tree.png
 
-    $ cat ./Kompiler/examples/standard.lang0 | ./frontend | ./Kompiler/parse-tree-to-graphvis.py | dot -Tpng -o tree.png
-
-In one go:
-
-    $ mkdir Hellman
-    $ cd Hellman
-    $ git clone https://github.com/sgonzalez/csci498-compiler.git Kompiler
-    $ mkdir build-debug
-    $ cd build-debug
-    $ cmake -G "Unix Makefiles" ../Kompiler/
-    $ make
-    $ cat ./Kompiler/examples/standard.lang0 | ./frontend | ./Kompiler/parse-tree-to-graphvis.py | dot -Tpng -o tree.png
-
-What we're suppose to do
+What we're suppose to do: AST Component
 ------------------------
 
 - Parse a language like this:
