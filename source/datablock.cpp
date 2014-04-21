@@ -18,12 +18,12 @@ nameRef DataBlock::insert(const char *data) {
     ref.pos = length;
     ref.len = strlen(data);
 
-    /* Grow the dataStore until we can fit the data */
+    // Grow the dataStore until we can fit the data
     while (ref.len + length >= size) {
         grow();
     }
 
-    /* Copy the data into the byte array */
+    // Copy the data into the byte array
     memcpy(dataStore+length, data, ref.len);
 
     length += ref.len;
@@ -45,6 +45,6 @@ void DataBlock::grow() {
     dataStore = newStore;
     size = newSize;
 
-    /* Set last byte to NULL */
+    // Set last byte to NULL
     dataStore[size] = '\0';
 }

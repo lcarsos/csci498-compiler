@@ -87,6 +87,7 @@ include_directories(
 
 add_executable(frontend
 	# Source files.
+    source/datablock.cpp
 	source/frontend.cpp
 	source/ast.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp

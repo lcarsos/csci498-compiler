@@ -15,9 +15,9 @@ class DataBlock {
     nameRef insert(const char *data);
     std::string get(nameRef ref);
 #ifndef NDEBUG
-    char* getDatablock() { return dataStore; }
-    unsigned long getSize() { return size; }
-    unsigned long getLength() { return length; }
+    const char* getDatablock() const { return dataStore; }
+    unsigned long getSize() const{ return size; }
+    unsigned long getLength() const { return length; }
 #endif
 
     private:
