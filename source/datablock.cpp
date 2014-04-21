@@ -13,21 +13,27 @@ DataBlock::~DataBlock() {
     delete[] dataStore;
 }
 
-char* DataBlock::insert(const char *data) {
-    size_t data_size = strlen(data);
+nameRef DataBlock::insert(const char *data) {
+    nameRef ref;
+    ref.pos = length;
+    ref.len = strlen(data);
 
     /* Grow the dataStore until we can fit the data */
-    while (data_size + length > size) {
+    while (ref.len + length >= size) {
         grow();
     }
 
     /* Copy the data into the byte array */
-    char *start = dataStore+length;
-    memcpy(start, data, data_size);
+    memcpy(dataStore+length, data, ref.len);
 
-    length += data_size;
+    length += ref.len;
 
-    return start;
+    return ref;
+}
+
+std::string DataBlock::get(nameRef ref) {
+    std::string val = std::string(dataStore+ref.pos, ref.len);
+    return val;
 }
 
 void DataBlock::grow() {
@@ -38,4 +44,7 @@ void DataBlock::grow() {
     delete[] dataStore;
     dataStore = newStore;
     size = newSize;
+
+    /* Set last byte to NULL */
+    dataStore[size] = '\0';
 }
