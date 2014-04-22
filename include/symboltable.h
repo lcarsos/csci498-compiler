@@ -1,5 +1,5 @@
-#ifndef __symboltable_h__
-#define __symboltable_h__
+#ifndef symboltable_h
+#define symboltable_h
 
 #include <iostream>
 #include <string>

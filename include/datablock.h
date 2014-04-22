@@ -1,5 +1,5 @@
-#ifndef __datablock_h__
-#define __datablock_h__
+#ifndef datablock_h
+#define datablock_h
 
 class DataBlock {
     public:
