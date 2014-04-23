@@ -4,13 +4,13 @@
 #include <string>
 
 struct nameRef {
-    unsigned long pos, len;
+    size_t pos, len;
 };
 
 class DataBlock {
     public:
     DataBlock();
-    DataBlock(unsigned long initSize);
+    DataBlock(size_t initSize);
     ~DataBlock();
 
     // get_name is a way of retrieving the string value stored at a location 
@@ -24,15 +24,15 @@ class DataBlock {
 
 #ifndef NDEBUG
     const char* getDatablock() const { return dataStore; }
-    unsigned long getSize() const{ return size; }
-    unsigned long getLength() const { return length; }
+    size_t getSize() const{ return size; }
+    size_t getLength() const { return length; }
 #endif
 
     private:
     char* dataStore;
-    unsigned long size;
-    unsigned long length;
-    static const unsigned long initialSize = 20;
+    size_t size;
+    size_t length;
+    static const size_t initialSize = 20;
 
     void grow();
     nameRef insert(const char *data);

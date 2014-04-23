@@ -5,7 +5,7 @@ DataBlock::DataBlock():size(initialSize),length(0) {
     dataStore = new char[initialSize];
 }
 
-DataBlock::DataBlock(unsigned long initSize):size(initSize),length(0) {
+DataBlock::DataBlock(size_t initSize):size(initSize),length(0) {
     dataStore = new char[initSize];
 }
 
@@ -42,7 +42,7 @@ nameRef DataBlock::lookup(std::string name) {
  * PRIVATE
  */
 void DataBlock::grow() {
-    unsigned long newSize = size * 2 + 1;
+    size_t newSize = size * 2 + 1;
 
     char *newStore = new char[newSize];
     memcpy(newStore, dataStore, size);
