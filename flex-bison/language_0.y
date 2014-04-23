@@ -23,7 +23,9 @@ void yyerror(const char*);
 %token <integer>    integer
 %token <real>       real
 %token <str>        identifier
-%token <str>        unaryOperatorKeyword
+%token <str>        unaryPrefixOperatorKeyword
+%token <str>        unaryPostfixOperatorKeyword
+%token <str>        minusOperatorKeyword
 %token <str>        assignmentOperatorKeyword
 %token <str>        binaryOperatorKeyword0
 %token <str>        binaryOperatorKeyword1
@@ -51,6 +53,8 @@ void yyerror(const char*);
 %type <node>        ElseStatement
 %type <node>        Expression
 %type <node>        PrimaryTerm
+%type <node>        PostfixExpression
+%type <node>        UnaryExpression
 %type <node>        TermPrecedence0
 %type <node>        TermPrecedence1
 %type <node>        TermPrecedence2
@@ -300,16 +304,45 @@ TermPrecedence1:
     $$.addChild($1);
     $$.addChild($3);
   }
+| TermPrecedence1 minusOperatorKeyword TermPrecedence0 {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+    $$.addChild($3);
+  }
 | TermPrecedence0 {
     $$ = $1;
   }
 ;
 
 TermPrecedence0:
-  TermPrecedence0 binaryOperatorKeyword0 PrimaryTerm {
+  TermPrecedence0 binaryOperatorKeyword0 UnaryExpression {
     $$ = ASTNode(ASTNode::Expression, $2);
     $$.addChild($1);
     $$.addChild($3);
+  }
+| PostfixExpression { 
+    $$ = $1;
+  }
+;
+
+PostfixExpression:
+  UnaryExpression unaryPostfixOperatorKeyword {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
+  }
+| UnaryExpression {
+    $$ = $1;
+  }
+;
+
+UnaryExpression:
+  unaryPrefixOperatorKeyword PrimaryTerm {
+    $$ = ASTNode(ASTNode::Expression, $1);
+    $$.addChild($2);
+  }
+| minusOperatorKeyword PrimaryTerm {
+    $$ = ASTNode(ASTNode::Expression, $1);
+    $$.addChild($2);
   }
 | PrimaryTerm {
     $$ = $1;

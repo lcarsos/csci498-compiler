@@ -5,9 +5,11 @@
     extern "C" int yylex();
 %}
 
-UnaryOp       "!"|"~"|"++"|"--"
+UnaryPreOp      "!"|"~"
+UnaryPostOp     "++"|"--"
 BinaryOp0       "*"|"/"|"%"
-BinaryOp1       "+"|"-"
+BinaryOp1       "+"
+Minus           "-"
 BinaryOp2       ">>"|"<<"
 BinaryOp3       "<"|">"|"<="|">="
 BinaryOp4       "=="|"!="
@@ -56,6 +58,21 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 [a-zA-Z_]+[a-zA-Z_0-9]* {
 	yylval.str = yytext;
 	return identifier;
+}
+
+{UnaryPreOp} {
+    yylval.str = yytext;
+    return unaryPrefixOperatorKeyword;
+}
+
+{UnaryPostOp} {
+    yylval.str = yytext;
+    return unaryPostfixOperatorKeyword;
+}
+
+{Minus} {
+    yylval.str = yytext;
+    return minusOperatorKeyword;
 }
 
 {BinaryOp0} {
