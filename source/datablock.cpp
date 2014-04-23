@@ -1,75 +1,41 @@
-#include <string.h>
 #include "datablock.h"
 
-DataBlock::DataBlock():size(initialSize),length(0) {
-    dataStore = new char[initialSize];
+#include <string>
+
+std::string DataBlock::getName(NameRef ref) {
+    return dataStore.substr(ref.pos, ref.length);
 }
 
-DataBlock::DataBlock(size_t initSize):size(initSize),length(0) {
-    dataStore = new char[initSize];
+std::string DataBlock::getDataBlock() const {
+    return dataStore;
 }
 
-DataBlock::~DataBlock() {
-    delete[] dataStore;
+NameRef DataBlock::lookup(const char *name) {
+    return lookup(std::string(name));
 }
 
-std::string DataBlock::getName(nameRef ref) {
-    std::string val = std::string(dataStore+ref.pos, ref.len);
-    return val;
-}
-
-nameRef DataBlock::lookup(const char *name) {
-    nameRef ref;
-    char* found_ptr;
-
-    //Search for the name, return a new ref to it if so
-    if ((found_ptr = strstr(dataStore, name))) {
-        ref.len = strlen(name);
-        ref.pos = found_ptr - dataStore;
-    } else { //Else add the name to the namespace
-        ref = insert(name);
+NameRef DataBlock::lookup(std::string name) {
+    DataBlock::size_type pos = dataStore.find(name, 0);
+    if (pos == std::string::npos) {
+        // If it's not in there, add it!
+        return insert(name);
     }
+    return NameRef(pos, name.length());
+}
 
+DataBlock::size_type DataBlock::getSize() const {
+    return dataStore.length();
+}
+
+// ***********
+// * PRIVATE *
+// ***********
+NameRef DataBlock::insert(const char *name) {
+    return insert(std::string(name));
+}
+
+NameRef DataBlock::insert(std::string name) {
+    NameRef ref(dataStore.length(), name.length());
+    dataStore.append(name);
     return ref;
-}
-
-nameRef DataBlock::lookup(std::string name) {
-    return this->lookup(name.c_str());
-}
-
-
-/**********
- * PRIVATE
- */
-void DataBlock::grow() {
-    size_t newSize = size * 2 + 1;
-
-    char *newStore = new char[newSize];
-    memcpy(newStore, dataStore, size);
-    delete[] dataStore;
-    dataStore = newStore;
-    size = newSize;
-
-    // Set last byte to NULL
-    dataStore[size] = '\0';
-}
-
-nameRef DataBlock::insert(const char *data) {
-    nameRef ref;
-    ref.pos = length;
-    ref.len = strlen(data);
-
-    // Grow the dataStore until we can fit the data
-    while (ref.len + length >= size) grow();
-
-    // Copy the data into the byte array
-    memcpy(dataStore+length, data, ref.len);
-
-    length += ref.len;
-
-    return ref;
-}
-
-nameRef DataBlock::insert(std::string data) {
-    return this->insert(data.c_str());
 }

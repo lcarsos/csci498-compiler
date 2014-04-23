@@ -114,4 +114,3 @@ add_executable(test_datablock
 	)
 
 target_link_libraries(frontend fl)
-set_property(TARGET frontend PROPERTY FOLDER "IncludesL")

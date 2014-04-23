@@ -3,40 +3,44 @@
 
 #include <string>
 
-struct nameRef {
-    size_t pos, len;
-};
+class NameRef;
 
 class DataBlock {
-    public:
-    DataBlock();
-    DataBlock(size_t initSize);
-    ~DataBlock();
+public:
+    typedef std::string::size_type size_type;
 
-    // get_name is a way of retrieving the string value stored at a location 
+    DataBlock()
+    : dataStore() {}
+	~DataBlock() {}
+
+    // get_name is a way of retrieving the string value stored at a location
     // in the namespace.
-    std::string getName(nameRef ref);
+    std::string getName(NameRef ref);
+    std::string getDataBlock() const;
 
     // Lookup checks if a name is in the namespace, returns that if so,
     //  otherwise adds to the table and then returns that.
-    nameRef lookup(const char *data);
-    nameRef lookup(std::string data);
+    NameRef lookup(const char *data);
+    NameRef lookup(std::string data);
 
-#ifndef NDEBUG
-    const char* getDatablock() const { return dataStore; }
-    size_t getSize() const{ return size; }
-    size_t getLength() const { return length; }
-#endif
+    size_type getSize() const;
 
-    private:
-    char* dataStore;
-    size_t size;
-    size_t length;
-    static const size_t initialSize = 20;
+private:
+    std::string dataStore;
 
-    void grow();
-    nameRef insert(const char *data);
-    nameRef insert(std::string data);
+    NameRef insert(const char *data);
+    NameRef insert(std::string data);
+};
+
+class NameRef {
+public:
+    NameRef(DataBlock::size_type pos, DataBlock::size_type length)
+    : pos(pos), length(length) {}
+    NameRef()
+    : pos(0), length(0) {}
+
+    DataBlock::size_type pos;
+    DataBlock::size_type length;
 };
 
 #endif
