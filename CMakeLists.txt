@@ -63,7 +63,7 @@ else()
 	#   (Alamode uses c++0x, but anything from the past 2.5 years uses c++11)
 	include(CheckCXXCompilerFlag)
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX11)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 	if (CXX11)
 		add_definitions("-std=c++11")
 	else()
@@ -81,15 +81,17 @@ else()
 endif()
 
 include_directories(
+	tests
 	include
 	${BIN}/flex-bison-autogen
 	)
 
 add_executable(frontend
 	# Source files.
-    source/datablock.cpp
-	source/frontend.cpp
 	source/ast.cpp
+	source/datablock.cpp
+	source/frontend.cpp
+
 	source/symboltable.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
@@ -97,11 +99,18 @@ add_executable(frontend
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
-    include/datablock.h
+	include/datablock.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
 	flex-bison/language_0.y
+	)
+
+add_executable(test_datablock
+	tests/datablock_test.cpp
+
+	include/datablock.h
+	source/datablock.cpp
 	)
 
 target_link_libraries(frontend fl)
