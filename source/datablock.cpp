@@ -22,10 +22,11 @@ nameRef DataBlock::lookup(const char *name) {
     nameRef ref;
     char* found_ptr;
 
+    //Search for the name, return a new ref to it if so
     if ((found_ptr = strstr(dataStore, name))) {
         ref.len = strlen(name);
         ref.pos = found_ptr - dataStore;
-    } else {
+    } else { //Else add the name to the namespace
         ref = insert(name);
     }
 
@@ -35,7 +36,6 @@ nameRef DataBlock::lookup(const char *name) {
 nameRef DataBlock::lookup(std::string name) {
     return this->lookup(name.c_str());
 }
-
 
 
 /**********
@@ -50,7 +50,7 @@ void DataBlock::grow() {
     dataStore = newStore;
     size = newSize;
 
-    /* Set last byte to NULL */
+    // Set last byte to NULL
     dataStore[size] = '\0';
 }
 
@@ -59,10 +59,10 @@ nameRef DataBlock::insert(const char *data) {
     ref.pos = length;
     ref.len = strlen(data);
 
-    /* Grow the dataStore until we can fit the data */
+    // Grow the dataStore until we can fit the data
     while (ref.len + length >= size) grow();
 
-    /* Copy the data into the byte array */
+    // Copy the data into the byte array
     memcpy(dataStore+length, data, ref.len);
 
     length += ref.len;
