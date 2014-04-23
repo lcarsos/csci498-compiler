@@ -13,23 +13,34 @@ DataBlock::~DataBlock() {
     delete[] dataStore;
 }
 
-char* DataBlock::insert(const char *data) {
-    size_t data_size = strlen(data);
-
-    /* Grow the dataStore until we can fit the data */
-    while (data_size + length > size) {
-        grow();
-    }
-
-    /* Copy the data into the byte array */
-    char *start = dataStore+length;
-    memcpy(start, data, data_size);
-
-    length += data_size;
-
-    return start;
+std::string DataBlock::getName(nameRef ref) {
+    std::string val = std::string(dataStore+ref.pos, ref.len);
+    return val;
 }
 
+nameRef DataBlock::lookup(const char *name) {
+    nameRef ref;
+    char* found_ptr;
+
+    //Search for the name, return a new ref to it if so
+    if ((found_ptr = strstr(dataStore, name))) {
+        ref.len = strlen(name);
+        ref.pos = found_ptr - dataStore;
+    } else { //Else add the name to the namespace
+        ref = insert(name);
+    }
+
+    return ref;
+}
+
+nameRef DataBlock::lookup(std::string name) {
+    return this->lookup(name.c_str());
+}
+
+
+/**********
+ * PRIVATE
+ */
 void DataBlock::grow() {
     unsigned long newSize = size * 2 + 1;
 
@@ -38,4 +49,27 @@ void DataBlock::grow() {
     delete[] dataStore;
     dataStore = newStore;
     size = newSize;
+
+    // Set last byte to NULL
+    dataStore[size] = '\0';
+}
+
+nameRef DataBlock::insert(const char *data) {
+    nameRef ref;
+    ref.pos = length;
+    ref.len = strlen(data);
+
+    // Grow the dataStore until we can fit the data
+    while (ref.len + length >= size) grow();
+
+    // Copy the data into the byte array
+    memcpy(dataStore+length, data, ref.len);
+
+    length += ref.len;
+
+    return ref;
+}
+
+nameRef DataBlock::insert(std::string data) {
+    return this->insert(data.c_str());
 }

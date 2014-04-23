@@ -87,6 +87,7 @@ include_directories(
 
 add_executable(frontend
 	# Source files.
+    source/datablock.cpp
 	source/frontend.cpp
 	source/ast.cpp
 	source/symboltable.cpp
@@ -96,6 +97,7 @@ add_executable(frontend
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
+    include/datablock.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
