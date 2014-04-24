@@ -5,22 +5,20 @@
 #include <string>
 #include <map>
 
-using namespace std;
-
 struct SymbolTableNode {
-  string name;
-  string type;
-  map<string, string> attributes;
+  std::string name;
+  std::string type;
+  std::map<std::string, std::string> attributes;
 };
 
 class SymbolTable {
   class Scope {
-    map<string, SymbolTableNode *> nodes; // symbol name => node
+    std::map<std::string, SymbolTableNode *> nodes; // symbol name => node
     Scope *parent;
   public:
     Scope(Scope *parent) : parent(parent) {};
     Scope * getParent() const { return parent; };
-    SymbolTableNode * getNodeNamed(string name) const { return nodes.at(name); };
+    SymbolTableNode * getNodeNamed(std::string name) const { return nodes.at(name); };
     void addSymbolNode(SymbolTableNode *node) { nodes[node->name] = node; };
   };
 
@@ -32,10 +30,10 @@ public:
 
   void openScope();
   void closeScope();
-  void enterSymbol(string name, string type, map<string, string> attributes);
-  bool declaredLocally(string name);
-  SymbolTableNode * retrieveSymbolLocally(string name);
-  SymbolTableNode * retrieveSymbol(string name);
+  void enterSymbol(std::string name, std::string type, std::map<std::string, std::string> attributes);
+  bool declaredLocally(std::string name);
+  SymbolTableNode * retrieveSymbolLocally(std::string name);
+  SymbolTableNode * retrieveSymbol(std::string name);
 
 };
 
