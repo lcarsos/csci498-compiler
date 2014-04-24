@@ -11,8 +11,8 @@ int main() {
 
     puts("Newly initilized");
     puts("var   | size |  len | store");
-    printf("db1   | %4lud | %4lud | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
-    printf("db2   | %4lud | %4lud | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
+    printf("db1   | %4lu | %4lu | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lu | %4lu | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
 
     NameRef hw1 = db1.lookup(test);
     NameRef hw2 = db2.lookup(test);
