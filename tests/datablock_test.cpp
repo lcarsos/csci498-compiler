@@ -4,48 +4,44 @@
 
 int main() {
     DataBlock db1;
-    DataBlock db2;
+    DataBlock db2(40ul);
     std::string test = "helloWorld";
     const char* fbb = "foobarbaz";
 
-    printf("Newly initilized\n");
-    printf("var   | size | store\n");
-    printf("db1   | %4d | %s\n", db1.getSize(), db1.getDataBlock().c_str());
-    printf("db2   | %4d | %s\n", db2.getSize(), db2.getDataBlock().c_str());
-	printf("\n");
+    puts("Newly initilized");
+    puts("var   | size |  len | store");
+    printf("db1   | %4lud | %4lud | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lud | %4lud | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
 
     NameRef hw1 = db1.lookup(test);
     NameRef hw2 = db2.lookup(test);
-    printf("lookup (string)HelloWorld\n");
-    printf("var   | size | store\n");
-    printf("db1   | %4d | %s\n", db1.getSize(), db1.getDataBlock().c_str());
-    printf("db2   | %4d | %s\n", db2.getSize(), db2.getDataBlock().c_str());
-	printf("\n");
+    puts("lookup (string)HelloWorld");
+    puts("var   | size |  len | store");
+    printf("db1   | %4lu | %4lu | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lu | %4lu | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
 
     NameRef fbb1 = db1.lookup(fbb);
     NameRef fbb2 = db2.lookup(fbb);
-    printf("lookup (char*)foobarbaz\n");
-    printf("var   | size | store\n");
-    printf("db1   | %4d | %s\n", db1.getSize(), db1.getDataBlock().c_str());
-    printf("db2   | %4d | %s\n", db2.getSize(), db2.getDataBlock().c_str());
-	printf("\n");
+    puts("lookup (char*)foobarbaz");
+    puts("var   | size |  len | store");
+    printf("db1   | %4lu | %4lu | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lu | %4lu | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
 
     NameRef java1 = db1.lookup("com.sun.java.swing.plaf.nimbus.InternalFrameInternalFrameTitlePaneInternalFrameTitlePaneMaximizeButtonWindowNotFocusedState");
     NameRef java2 = db2.lookup("com.sun.java.swing.plaf.nimbus.InternalFrameInternalFrameTitlePaneInternalFrameTitlePaneMaximizeButtonWindowNotFocusedState");
-    printf("lookup (\"\")com.sun.java.swing.plaf.nimbus.InternalFrameInternalFrameTitlePaneInternalFrameTitlePaneMaximizeButtonWindowNotFocusedState\n");
-    printf("var   | size | store\n");
-    printf("db1   | %4d | %s\n", db1.getSize(), db1.getDataBlock().c_str());
-    printf("db2   | %4d | %s\n", db2.getSize(), db2.getDataBlock().c_str());
-	printf("\n");
+    puts("lookup (\"\")com.sun.java.swing.plaf.nimbus.InternalFrameInternalFrameTitlePaneInternalFrameTitlePaneMaximizeButtonWindowNotFocusedState");
+    puts("var   | size |  len | store");
+    printf("db1   | %4lu | %4lu | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lu | %4lu | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
 
     NameRef fb1 = db1.lookup("foobar");
     NameRef fb2 = db2.lookup("foobar");
-    printf("lookup (\"\")foobarbaz\n");
-    printf("var   | size | store\n");
-    printf("db1   | %4d | %s\n", db1.getSize(), db1.getDataBlock().c_str());
-    printf("db2   | %4d | %s\n", db2.getSize(), db2.getDataBlock().c_str());
-	printf("\n");
-	printf("\n");
+    puts("lookup (\"\")foobarbaz");
+    puts("var   | size |  len | store");
+    printf("db1   | %4lu | %4lu | %s\n", db1.getSize(), db1.getLength(), db1.getDatablock());
+    printf("db2   | %4lu | %4lu | %s\n", db2.getSize(), db2.getLength(), db2.getDatablock());
+
+    puts("");
 
 
     test = db1.getName(hw1);
