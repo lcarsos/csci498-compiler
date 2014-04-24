@@ -12,7 +12,7 @@ You'll need:
 
 3. Your favorite **C++11** compiler. Any up-to-date GCC, Clang, or Intel compiler should work fine.
 
-4. Optionally, [Graphvis](http://www.graphviz.org/) to generate AST diagrams.
+4. Optionally, [Graphviz](http://www.graphviz.org/) to generate AST diagrams.
 
 
     **Notes for Windows users**:
