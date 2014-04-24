@@ -1,5 +1,6 @@
 #include "symboltable.h"
 
+using namespace std;
 
 SymbolTable::SymbolTable() {
   rootScope = new Scope(NULL);
