@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+
 #include "datablock.h"
 
 int main() {
@@ -63,5 +64,5 @@ int main() {
     test = db2.getName(fb2);
     printf("db2:fb2 - %s\n", test.c_str());
 
-
+    return 0;
 }
