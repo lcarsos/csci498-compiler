@@ -4,7 +4,10 @@
 #include <string>
 
 struct NameRef {
-    size_t pos, len;
+    size_t pos;
+    size_t len;
+    NameRef()
+    : pos(0), len(0) {}
 };
 
 class DataBlock {
@@ -32,7 +35,7 @@ class DataBlock {
     char* dataStore;
     size_t size;
     size_t length;
-    static const size_t initialSize = 20;
+    static const size_t INITIAL_SIZE = 20;
 
     void grow();
     NameRef insert(const char *data);

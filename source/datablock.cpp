@@ -1,11 +1,15 @@
-#include <string.h>
+#include <cstring>
+#include <string>
+
 #include "datablock.h"
 
-DataBlock::DataBlock():size(initialSize),length(0) {
-    dataStore = new char[initialSize]();
+DataBlock::DataBlock()
+: size(INITIAL_SIZE), length(0) {
+    dataStore = new char[INITIAL_SIZE]();
 }
 
-DataBlock::DataBlock(size_t initSize):size(initSize),length(0) {
+DataBlock::DataBlock(size_t initSize)
+: size(initSize), length(0) {
     dataStore = new char[initSize]();
 }
 
@@ -14,8 +18,12 @@ DataBlock::~DataBlock() {
 }
 
 std::string DataBlock::getName(NameRef ref) {
-    std::string val = std::string(dataStore+ref.pos, ref.len);
-    return val;
+    const char* ptr = dataStore + ref.pos;
+    if (ptr == nullptr) {
+        ptr = "(null)";
+        return ptr;
+    }
+    return std::string(ptr, ref.len);
 }
 
 NameRef DataBlock::lookup(const char *name) {
@@ -23,7 +31,7 @@ NameRef DataBlock::lookup(const char *name) {
     char* found_ptr;
     found_ptr = strstr(dataStore, name);
     //Search for the name, return a new ref to it if so
-    if (found_ptr == NULL) {
+    if (found_ptr != nullptr) {
         ref.len = strlen(name);
         ref.pos = found_ptr - dataStore;
     }
@@ -62,7 +70,7 @@ NameRef DataBlock::insert(const char *data) {
     ref.len = strlen(data);
 
     // Grow the dataStore until we can fit the data
-    while (ref.len + length + 1 >= size) grow();
+    while (ref.len + length + 1 >= size) { grow(); }
 
     // Copy the data into the byte array
     memcpy(dataStore+length, data, ref.len);

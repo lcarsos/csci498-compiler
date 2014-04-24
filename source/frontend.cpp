@@ -6,18 +6,21 @@
 int yyparse();
 
 int main() {
+// Enable this when you need token-by-token debugging.
 //	yydebug = 1;
-	switch (yyparse()) {
+	int result = yyparse();
+	switch (result) {
 		case 0:
 			// Silence is golden.
 			break;
 		case 1:
-            std::cout << "Syntax error!" << std::endl;
+			// Bison prints syntax errors, so we won't.
 			break;
 		case 2:
-            std::cout << "Memory error!" << std::endl;
+			std::cout << "Memory error!" << std::endl;
 			break;
 		default:
-            std::cout << "Unknown error." << std::endl;
+			std::cout << "Unknown error." << std::endl;
 	}
+	return result;
 }
