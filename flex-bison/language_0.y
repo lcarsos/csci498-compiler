@@ -76,13 +76,12 @@ void yyerror(ASTNode& program, std::ostream& error, const char*);
 
 %code requires {
   #include "ast.h"
-  using namespace std;
 
   // Structs, unlike unions, allow class members.
   struct YYSTYPE {
     int integer;
     double real;
-    string str;
+    std::string str;
     ASTNode node;
 
     // We should probably have a reasonable default constructor.
@@ -358,7 +357,7 @@ PrimaryTerm:
 // required because '=' needs special significance in assignment and therefore can't be apart of the assignmentOperatorKeyword regex
 assignmentOperator:
   '=' {
-    $$ = string("=");
+    $$ = std::string("=");
   }
 | assignmentOperatorKeyword {
     $$ = $1;
@@ -376,10 +375,10 @@ Value:
 Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
-    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+    $$ = ASTNode(ASTNode::Symbol, std::to_string($1));
   }
 | real {
-    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+    $$ = ASTNode(ASTNode::Symbol, std::to_string($1));
   }
 ;
 
@@ -424,5 +423,5 @@ ReturnStatement:
 %%
 
 void yyerror(ASTNode& program, std::ostream& error, const char* msg) {
-  error << "[Error] " << msg << endl;
-  }
+    error << "[Error] " << msg << std::endl;
+}

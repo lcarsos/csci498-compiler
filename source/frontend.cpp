@@ -11,13 +11,15 @@ int yyparse(ASTNode& program, std::ostream& error);
 int main(int argc, char** argv) {
 // Enable this when you need token-by-token debugging.
 //    yydebug = 1;
-    std::vector<std::string> args(&argv[0], &argv[argc - 1]);
+    std::vector<std::string> args(&argv[0], &argv[argc]);
+
     if (args.size() != 2) {
-        std::cerr << "Requires output token in command line" << std::endl;
+        std::cerr << "Usage: " << args[0] << " OUTPUT" << std::endl;
+        std::cerr << "Generate OUTPUT.{err,a,p,ir} from stdin." << std::endl;
         return 3;
     }
 
-    string filename = args[1];
+    std::string filename = args[1];
 
     std::ofstream error     (filename + ".err");
     std::ofstream ast       (filename + ".a");
