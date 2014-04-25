@@ -51,7 +51,7 @@ public:
     std::vector<ASTNode> children;
 
     ASTNode(Type type = Empty, std::string str = "")
-    : type(type), str(str) {
+    : type(type), isConst(false), str(str) {
         nodeCount += 1;
         uniqueID = nodeCount;
     }
