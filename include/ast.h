@@ -36,11 +36,11 @@ public:
 
     void addChild(const ASTNode& node);
 
-    Type type = Empty;
-    size_t uniqueID = 0;
+    Type type;
+    size_t uniqueID;
 
     // This is only used by Symbol.
-    bool isConst = false;
+    bool isConst;
 
     // Some nodes (e.g. int and float literals) need to save data, but not
     //   as strings.
