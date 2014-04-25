@@ -3,45 +3,46 @@
 using namespace std;
 
 SymbolTable::SymbolTable() {
-  rootScope = new Scope(NULL);
-  currentScope = rootScope;
+    rootScope = new Scope(nullptr);
+    currentScope = rootScope;
 }
 
 void SymbolTable::openScope() {
-  Scope *tmpScope = new Scope(currentScope);
-  currentScope = tmpScope;
+    Scope *tmpScope = new Scope(currentScope);
+    currentScope = tmpScope;
 }
 
 void SymbolTable::closeScope() {
-  if (currentScope->getParent() != NULL) {
-    currentScope = currentScope->getParent();
-    delete currentScope;
+    if (currentScope->getParent() != nullptr) {
+        currentScope = currentScope->getParent();
+        delete currentScope;
   }
 }
 
-void SymbolTable::enterSymbol(string name, string type, map<string, string> attributes) {
-  SymbolTableNode *tbnode = new SymbolTableNode({name, type, attributes});
-  currentScope->addSymbolNode(tbnode);
+void SymbolTable::enterSymbol(string name, string type,
+    map<string, string> attributes) {
+    SymbolTableNode *tbnode = new SymbolTableNode({name, type, attributes});
+    currentScope->addSymbolNode(tbnode);
 }
 
 bool SymbolTable::declaredLocally(string name) {
-  return (currentScope->getNodeNamed(name) != NULL);
+    return (currentScope->getNodeNamed(name) != nullptr);
 }
 
 SymbolTableNode * SymbolTable::retrieveSymbolLocally(string name) {
-  if (declaredLocally(name)) {
-    return currentScope->getNodeNamed(name);
-  }
-  return NULL;
+    if (declaredLocally(name)) {
+        return currentScope->getNodeNamed(name);
+    }
+    return nullptr;
 }
 
 SymbolTableNode * SymbolTable::retrieveSymbol(string name) {
-  Scope *searchScope = currentScope;
-  while (searchScope->getParent() != NULL) {
-    if (searchScope->getNodeNamed(name) != NULL) {
-      return searchScope->getNodeNamed(name);
+    Scope *searchScope = currentScope;
+    while (searchScope->getParent() != nullptr) {
+        if (searchScope->getNodeNamed(name) != nullptr) {
+            return searchScope->getNodeNamed(name);
+        }
+        searchScope = searchScope->getParent();
     }
-    searchScope = searchScope->getParent();
-  }
-  return NULL;
+    return nullptr;
 }

@@ -6,34 +6,50 @@
 #include <map>
 
 struct SymbolTableNode {
-  std::string name;
-  std::string type;
+    std::string name;
+    std::string type;
   std::map<std::string, std::string> attributes;
 };
 
 class SymbolTable {
-  class Scope {
-    std::map<std::string, SymbolTableNode *> nodes; // symbol name => node
-    Scope *parent;
-  public:
-    Scope(Scope *parent) : parent(parent) {};
-    Scope * getParent() const { return parent; };
-    SymbolTableNode * getNodeNamed(std::string name) const { return nodes.at(name); };
-    void addSymbolNode(SymbolTableNode *node) { nodes[node->name] = node; };
-  };
+private:
+    class Scope {
+        // symbol name => node
+        std::map<std::string, SymbolTableNode *> nodes;
+        Scope *parent = nullptr;
 
-  Scope *rootScope;
-  Scope *currentScope;
+    public:
+        Scope(Scope *parent)
+        : parent(parent) {};
+
+        Scope * getParent() const {
+            return parent;
+        };
+
+        SymbolTableNode * getNodeNamed(const std::string& name) const {
+            return nodes.at(name);
+        };
+
+        void addSymbolNode(SymbolTableNode *node) {
+            if (node != nullptr) {
+                nodes[node->name] = node;
+            }
+        };
+    };
+
+    Scope *rootScope = nullptr;
+    Scope *currentScope = nullptr;
 
 public:
-  SymbolTable();
+    SymbolTable();
 
-  void openScope();
-  void closeScope();
-  void enterSymbol(std::string name, std::string type, std::map<std::string, std::string> attributes);
-  bool declaredLocally(std::string name);
-  SymbolTableNode * retrieveSymbolLocally(std::string name);
-  SymbolTableNode * retrieveSymbol(std::string name);
+    void openScope();
+    void closeScope();
+    void enterSymbol(std::string name, std::string type,
+        std::map<std::string, std::string> attributes);
+    bool declaredLocally(std::string name);
+    SymbolTableNode * retrieveSymbolLocally(std::string name);
+    SymbolTableNode * retrieveSymbol(std::string name);
 
 };
 
