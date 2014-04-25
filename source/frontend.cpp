@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
     std::ofstream output_err(output_file+".err");
     std::ofstream output_a(output_file+".a");
     std::ofstream output_p(output_file+".p");
+    std::ofstream output_ir(output_file+".ir");
 
     // Parse!
     int result = yyparse(program, output_err);
@@ -30,10 +31,18 @@ int main(int argc, char *argv[]) {
     // Print abstract syntax tree
     program.print_tree(output_a);
 
+
+
+    // Generate IR code
+    /* PUT STUFF HERE */
+
+
+
     // Close files
     output_err.close();
     output_a.close();
     output_p.close();
+    output_ir.close();
 
     switch (result) {
         case 0:
