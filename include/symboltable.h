@@ -8,19 +8,19 @@
 struct SymbolTableNode {
     std::string name;
     std::string type;
-  std::map<std::string, std::string> attributes;
+    std::map<std::string, std::string> attributes;
 };
 
 class SymbolTable {
-private:
+    int current_address;
+
     class Scope {
         // symbol name => node
         std::map<std::string, SymbolTableNode *> nodes;
         Scope *parent = nullptr;
 
     public:
-        Scope(Scope *parent)
-        : parent(parent) {};
+        Scope(Scope *parent) : parent(parent) { };
 
         Scope * getParent() const {
             return parent;
@@ -41,7 +41,7 @@ private:
     Scope *currentScope = nullptr;
 
 public:
-    SymbolTable();
+    SymbolTable(int base_address);
 
     void openScope();
     void closeScope();

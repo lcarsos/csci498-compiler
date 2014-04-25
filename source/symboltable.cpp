@@ -2,7 +2,8 @@
 
 using namespace std;
 
-SymbolTable::SymbolTable() {
+SymbolTable::SymbolTable(int base_address) {
+    current_address = base_address;
     rootScope = new Scope(nullptr);
     currentScope = rootScope;
 }
@@ -21,6 +22,12 @@ void SymbolTable::closeScope() {
 
 void SymbolTable::enterSymbol(string name, string type,
     map<string, string> attributes) {
+    attributes["memory_address"] = current_address;
+    if (type == "int") {
+        current_address += 4;
+    } else {
+        current_address += 4;
+    }
     SymbolTableNode *tbnode = new SymbolTableNode({name, type, attributes});
     currentScope->addSymbolNode(tbnode);
 }

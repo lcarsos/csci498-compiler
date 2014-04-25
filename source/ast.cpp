@@ -44,7 +44,7 @@ void ASTNode::print_tree(std::ostream& os) {
 }
 
 void ASTNode::print_ir(std::ostream& os) {
-    // TODO implement meg
+    // TODO implement me
 }
 
 void ASTNode::makeConst() {
