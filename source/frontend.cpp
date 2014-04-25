@@ -11,40 +11,35 @@ int yyparse(ASTNode& program, std::ostream& error);
 int main(int argc, char *argv[]) {
 // Enable this when you need token-by-token debugging.
 //    yydebug = 1;
-    if (argc != 2) {
+    std::vector<std::string> args(argv, argc);
+    if (args.length() != 2) {
         cerr << "Requires output token in command line";
         return 3;
     }
 
-    string output_file = string(argv[1]);
+    string filename = args[1];
 
-    ASTNode program;
-    std::ofstream output_err(output_file+".err");
-    std::ofstream output_a(output_file+".a");
-    std::ofstream output_p(output_file+".p");
+    std::ofstream error     = filename + ".err";
+    std::ofstream ast       = filename + ".a";
+    std::ofstream parsetree = filename + ".p";
+    std::ofstream ir_code   = filename + ".ir";
 
     // Parse!
-    int result = yyparse(program, output_err);
+    ASTNode program;
+    int parse_result = yyparse(program, error);
 
     // Print parse tree
-    program.print_tree(output_p);
+    program.print_tree(parsetree);
 
     // Print abstract syntax tree
-    program.print_tree(output_a);
+    program.print_tree(ast);
 
-    switch (result) {
-        case 0:
-            // Silence is golden.
-            break;
-        case 1:
-            // Bison prints syntax errors, so we won't.
-            break;
-        // If either of these happen, bad things have happened.
-        case 2:
-            std::cout << "Memory error!" << std::endl;
-            break;
-        default:
-            std::cout << "Unknown error." << std::endl;
+    // Generate IR code
+    program.print_ir(ir_code);
+
+    if (parse_result != 0) {
+        return parse_result;
     }
-    return result;
+
+    return 0;
 }
