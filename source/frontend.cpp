@@ -1,10 +1,12 @@
 #include "language_0_parser.hpp"
 
+#include "ast.h"
+
 #include <iostream>
 #include <fstream>
 
 // Not declared in the header.
-int yyparse();
+int yyparse(ASTNode& program, std::ostream& error);
 
 int main(int argc, char *argv[]) {
 // Enable this when you need token-by-token debugging.

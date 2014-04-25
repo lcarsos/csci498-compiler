@@ -6,7 +6,7 @@
 // From flex
   extern "C" int yylex();
 
-void yyerror(const char*);
+void yyerror(ASTNode& program, std::ostream& error, const char*);
 %}
 
 // Debugging flags.
@@ -14,12 +14,9 @@ void yyerror(const char*);
 //   (They are VERY verbose!)
 %debug
 %error-verbose
-//%define parse.lac full
 
-// This adds additonal arguments to yyparse. We can use it to return
-//    the AST, but until then it just gets in the way.
-//%parse-param {ASTNode& program}.
-%parse-param {ASTNode& program, std::ostream& error}
+%parse-param {ASTNode& program}
+%parse-param {std::ostream& error}
 
 %token <integer>    integer
 %token <real>       real
@@ -98,8 +95,8 @@ void yyerror(const char*);
 
 Program:
   Statements {
-    $$ = $1;
-    $$.type = ASTNode::Program;
+    program = $1;
+    program.type = ASTNode::Program;
   }
 ;
 
@@ -426,6 +423,6 @@ ReturnStatement:
 
 %%
 
-void yyerror(const char* msg) {
-	cerr << "[Error] " << msg << endl;
+void yyerror(ASTNode& program, std::ostream& error, const char* msg) {
+  error << "[Error] " << msg << endl;
   }
