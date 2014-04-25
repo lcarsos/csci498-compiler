@@ -30,6 +30,11 @@ int main(int argc, char *argv[]) {
     // Print abstract syntax tree
     program.print_tree(output_a);
 
+    // Close files
+    output_err.close();
+    output_a.close();
+    output_p.close();
+
     switch (result) {
         case 0:
             // Silence is golden.
@@ -44,5 +49,6 @@ int main(int argc, char *argv[]) {
         default:
             std::cout << "Unknown error." << std::endl;
     }
+
     return result;
 }
