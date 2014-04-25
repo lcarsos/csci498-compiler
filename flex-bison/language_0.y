@@ -94,8 +94,8 @@ void yyerror(ASTNode& program, std::ostream& error, const char*);
 
 Program:
   Statements {
-    program = $1;
     program.type = ASTNode::Program;
+    program.addChild($1);
   }
 ;
 
