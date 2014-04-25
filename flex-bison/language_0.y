@@ -145,8 +145,8 @@ Declarations:
 
 DeclList:
   Declaration {
-    if($$.type != ASTNode::Declaration){
-	  $$ = ASTNode(ASTNode::Declaration);
+    if($$.type != ASTNode::Declarations){
+	  $$ = ASTNode(ASTNode::Declarations);
 	}
 
     $$.addChild($1);
@@ -417,6 +417,9 @@ ReturnStatement:
   returnKeyword Expression ';' {
     $$ = ASTNode(ASTNode::Return);
     $$.addChild($2);
+  }
+| returnKeyword ';' {
+    $$ = ASTNode(ASTNode::Return);
   }
 ;
 
