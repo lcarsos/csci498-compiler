@@ -17,9 +17,19 @@ int main(int argc, char *argv[]) {
     string output_file = string(argv[1]);
 
     ASTNode program;
-    std::ofstream error(output_file+".err");
+    std::ofstream output_err(output_file+".err");
+    std::ofstream output_a(output_file+".a");
+    std::ofstream output_p(output_file+".p");
 
-    int result = yyparse(program, error);
+    // Parse!
+    int result = yyparse(program, output_err);
+
+    // Print parse tree
+    program.print_tree(output_p);
+
+    // Print abstract syntax tree
+    program.print_tree(output_a);
+
     switch (result) {
         case 0:
             // Silence is golden.

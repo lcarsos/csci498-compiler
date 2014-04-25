@@ -100,7 +100,6 @@ Program:
   Statements {
     $$ = $1;
     $$.type = ASTNode::Program;
-    $$.print_tree(cout);
   }
 ;
 
