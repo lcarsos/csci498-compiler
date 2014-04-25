@@ -1,14 +1,25 @@
 #include "language_0_parser.hpp"
 
 #include <iostream>
+#include <fstream>
 
 // Not declared in the header.
 int yyparse();
 
-int main() {
+int main(int argc, char *argv[]) {
 // Enable this when you need token-by-token debugging.
 //    yydebug = 1;
-    int result = yyparse();
+    if (argc != 2) {
+        cerr << "Requires output token in command line";
+        return 3;
+    }
+
+    string output_file = string(argv[1]);
+
+    ASTNode program;
+    std::ofstream error(output_file+".err");
+
+    int result = yyparse(program, error);
     switch (result) {
         case 0:
             // Silence is golden.

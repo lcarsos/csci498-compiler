@@ -19,6 +19,7 @@ void yyerror(const char*);
 // This adds additonal arguments to yyparse. We can use it to return
 //    the AST, but until then it just gets in the way.
 //%parse-param {ASTNode& program}.
+%parse-param {ASTNode& program, std::ostream& error}
 
 %token <integer>    integer
 %token <real>       real
@@ -320,7 +321,7 @@ TermPrecedence0:
     $$.addChild($1);
     $$.addChild($3);
   }
-| PostfixExpression { 
+| PostfixExpression {
     $$ = $1;
   }
 ;
