@@ -6,6 +6,35 @@
 #include <string>
 #include <vector>
 
+struct IRInst {
+    IRInst() {}
+    enum Type {
+        Mv = 0,
+        Memld,
+        Immld,
+        Push,
+        Mempush,
+        Immpush,
+        Pop,
+        Mempop,
+        Jump,
+        BFalse,
+        BTrue,
+        Reljump,
+        Relbfalse,
+        Relbtrue,
+        Call,
+        Return,
+        Calc
+    };
+    static unsigned int registerCount;
+    unsigned int destReg = 0;
+    unsigned int sourceReg = 0;
+    unsigned int address = 0;
+    unsigned int nodeID = 0;
+    int number = 0;
+};
+
 class ASTNode {
 
 public:
@@ -14,13 +43,9 @@ public:
         Empty = 0,
         Assignment,
         Block,
-        Declaration,
         Declarations,
-        Else,
         Expression,
         If,
-        Literal,
-        Operator,
         Program,
         Return,
         Symbol,
@@ -36,7 +61,7 @@ public:
 
     void addChild(const ASTNode& node);
 
-    Type type;
+    ASTNode::Type type;
     size_t uniqueID;
 
     // This is only used by Symbol.
@@ -62,6 +87,9 @@ public:
 
     // Prints the tree in accordance with Hellman's specification.
     void print_tree(std::ostream& os);
+
+    //Generates IR code vector
+    std::vector<IRInst> generate_ir();
 
     // Prints the IR code
     void print_ir(std::ostream& os);

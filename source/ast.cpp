@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unordered_map>
 
+unsigned int IRInst::registerCount = 0;
 int ASTNode::nodeCount = 0;
 
 void ASTNode::addChild(const ASTNode& node) {
@@ -43,8 +44,57 @@ void ASTNode::print_tree(std::ostream& os) {
 
 }
 
+std::vector<IRInst> ASTNode::generate_ir() {
+    //TODO: add symbol function
+    std::vector<IRInst> result;
+    switch (type) {
+        case Empty:
+            //TODO: Return Error
+            return result;
+        case Assignment:
+            // generate_ir on RHS -> RX
+            // memst RX, @(LHS)
+            return result;
+        case Block:
+            // generate_ir on all children
+            // pass vector on
+            return result;
+        case Declarations:
+            // First Child is always type
+            // All children afterwards are symbols or assignment
+            //      first child of assignment is symbol to add to table
+
+            // if symbol in scope
+            //      error
+            // else
+            //    add to table
+            //
+            // if assignment
+            //    generate_ir for assignment
+            //  
+            return result;
+        case Expression:
+            //Return calc RD, <Expr>
+            return result;
+        case If:
+            return result;
+        case Program:
+            //Concat children
+            return result;
+        case Return:
+            // ircode: return
+            return result;
+        case Symbol:
+            // error (maybe)
+            return result;
+        case While:
+            // Like if
+            return result;
+    }
+}
+
 void ASTNode::print_ir(std::ostream& os) {
-    // TODO implement me
+
 }
 
 void ASTNode::makeConst() {
@@ -80,13 +130,9 @@ std::string to_string(ASTNode::Type type) {
     case ASTNode::Empty:        return "Empty";
     case ASTNode::Assignment:   return "Assignment";
     case ASTNode::Block:        return "Block";
-    case ASTNode::Declaration:  return "Declaration";
     case ASTNode::Declarations: return "Declarations";
-    case ASTNode::Else:         return "Else";
     case ASTNode::Expression:   return "Expression";
     case ASTNode::If:           return "If";
-    case ASTNode::Literal:      return "Literal";
-    case ASTNode::Operator:     return "Operator";
     case ASTNode::Program:      return "Program";
     case ASTNode::Return:       return "Return";
     case ASTNode::Symbol:       return "Symbol";
