@@ -8,21 +8,21 @@
 // Not declared in the header.
 int yyparse(ASTNode& program, std::ostream& error);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char** argv) {
 // Enable this when you need token-by-token debugging.
 //    yydebug = 1;
-    std::vector<std::string> args(argv, argc);
-    if (args.length() != 2) {
-        cerr << "Requires output token in command line";
+    std::vector<std::string> args(&argv[0], &argv[argc - 1]);
+    if (args.size() != 2) {
+        std::cerr << "Requires output token in command line" << std::endl;
         return 3;
     }
 
     string filename = args[1];
 
-    std::ofstream error     = filename + ".err";
-    std::ofstream ast       = filename + ".a";
-    std::ofstream parsetree = filename + ".p";
-    std::ofstream ir_code   = filename + ".ir";
+    std::ofstream error     (filename + ".err");
+    std::ofstream ast       (filename + ".a");
+    std::ofstream parsetree (filename + ".p");
+    std::ofstream ir_code   (filename + ".ir");
 
     // Parse!
     ASTNode program;
