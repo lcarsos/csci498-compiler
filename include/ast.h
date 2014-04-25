@@ -63,6 +63,9 @@ public:
     // Prints the tree in accordance with Hellman's specification.
     void print_tree(std::ostream& os);
 
+    // Prints the IR code
+    void print_ir(std::ostream& os);
+
     void makeConst();
 };
 

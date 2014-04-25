@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 
 
     // Generate IR code
-    /* PUT STUFF HERE */
+    program.print_ir(output_ir);
 
 
 
