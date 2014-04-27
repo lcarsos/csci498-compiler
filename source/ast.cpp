@@ -1,6 +1,7 @@
 #include "ast.h"
 #include "symboltable.h"
 
+#include <climits>
 #include <functional>
 #include <sstream>
 #include <unordered_map>
@@ -161,9 +162,8 @@ std::vector<IRInst> ir_assignment(const ASTNode* node) {
 
     //Create new IRInst
     IRInst assignInst;
-    assignInst.type = IRInst::Memst;
+    assignInst.type = IRInst::Mempop;
     assignInst.address = mem;
-    assignInst.sourceReg = 0;
 
     result.push_back(assignInst);
 
@@ -241,13 +241,19 @@ std::vector<IRInst> ir_expression(const ASTNode* node) {
 
     result.push_back(calcExpr);
 
+    IRInst pushToStack;
+    pushToStack.type = IRInst::Push;
+    pushToStack.sourceReg = 0;
+
+    result.push_back(pushToStack);
+
     return result;
 }
 
 std::vector<IRInst> ir_if(const ASTNode* node) {
     std::vector<IRInst> result;
 
-    //Calculate if expression, result will be in R0
+    //Calculate if expression, result will be in R0, and @SP
     std::vector<IRInst> exprNode = node->children[0].generate_ir();
     result.reserve(result.size() + exprNode.size());
     result.insert(result.end(), exprNode.begin(), exprNode.end());
@@ -259,7 +265,7 @@ std::vector<IRInst> ir_if(const ASTNode* node) {
     IRInst jumpFalse;
     jumpFalse.type = IRInst::Relbfalse;
     jumpFalse.sourceReg = 0;
-    jumpFalse.address = ifBlock.size() + (node->children.size() > 2 ? 2 : 1);
+    jumpFalse.number = ifBlock.size() + (ifBlock.size() > 2 ? 2 : 1);
     result.push_back(jumpFalse);
 
     //If else block exists handle it
@@ -267,7 +273,7 @@ std::vector<IRInst> ir_if(const ASTNode* node) {
         std::vector<IRInst> elseBlock = node->children[2].generate_ir();
         IRInst jumpElse;
         jumpElse.type = IRInst::Reljump;
-        jumpElse.address = elseBlock.size() + 1;
+        jumpElse.number = elseBlock.size() + 1;
         result.push_back(jumpElse);
     }
 
@@ -292,19 +298,88 @@ std::vector<IRInst> ir_return(const ASTNode* node) {
     // ircode: return
     std::vector<IRInst> result;
 
+    if (node->children.size() > 0) {
+        result = node->children[0].generate_ir();
+    }
+
+    IRInst retIR;
+    retIR.type = IRInst::Return;
+    result.push_back(retIR);
+
     return result;
 }
 
 std::vector<IRInst> ir_symbol(const ASTNode* node) {
-    // error (maybe)
+    //This function should produce ir instructions to make either the immediate
+    //or symbol be loaded onto the top of the stack, this should never be
+    //called for declarations LHS node
     std::vector<IRInst> result;
+
+    char* endPtr = 0;
+    errno = 0;
+
+    const long symbol_num = std::strtol(node->str.c_str(), &endPtr, 10);
+
+    //Check if the conversion happend correctly
+    if (endPtr == node->str.c_str() + node->str.size()) {
+        if ((symbol_num == LONG_MIN || symbol_num == LONG_MAX) && errno == ERANGE) {
+            //OUT OF RANGE ERROR
+            return result;
+        }
+
+        if (sizeof(long) > sizeof(int)) { //have to coerce into an int, so making sure I won't overflow
+            if (symbol_num > INT_MAX || symbol_num < INT_MIN) {
+                //OUT OF INT RANGE ERROR
+                return result;
+            }
+        }
+
+        IRInst pushImm;
+        pushImm.type = IRInst::Immpush;
+        pushImm.number = static_cast<int>(symbol_num);
+
+        result.push_back(pushImm);
+        return result;
+    }
+
+    //Otherwise this is a symbol that should be in the symbol_table
+    size_t mem = atoi(symT.retrieveSymbol(node->str)->attributes["memory_address"].c_str());
+
+    IRInst loadInst;
+    loadInst.type = IRInst::Mempush;
+    loadInst.address = mem;
+
+    result.push_back(loadInst);
 
     return result;
 }
 
 std::vector<IRInst> ir_while(const ASTNode* node) {
-    // Like if
     std::vector<IRInst> result;
+
+    std::vector<IRInst> whileBlock = node->children[1].generate_ir();
+
+    //Jump past the while block first
+    IRInst doWhileJump;
+    doWhileJump.type = IRInst::Reljump;
+    doWhileJump.number = whileBlock.size() + 1;
+    result.push_back(doWhileJump);
+
+    //Add on the while block
+    result.reserve(result.size() + whileBlock.size());
+    result.insert(result.end(), whileBlock.begin(), whileBlock.end());
+
+    //Calculate loop expression, result will be in R0, and @SP
+    std::vector<IRInst> exprNode = node->children[0].generate_ir();
+    result.reserve(result.size() + exprNode.size());
+    result.insert(result.end(), exprNode.begin(), exprNode.end());
+
+    //Jump back to beginning of the while block
+    IRInst jumpBack;
+    jumpBack.type = IRInst::Relbtrue;
+    jumpBack.number = -1 * (result.size() - 1);
+
+    result.push_back(jumpBack);
 
     return result;
 }

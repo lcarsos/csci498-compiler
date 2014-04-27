@@ -12,12 +12,12 @@ struct IRInst {
         Mv = 0,
         Memld,
         Immld,
-        Memst,
-        Push,
-        Mempush,
-        Immpush,
+        Memst, // sourceReg, address
+        Push, // sourceReg
+        Mempush, // address
+        Immpush, // number
         Pop,
-        Mempop,
+        Mempop, // address
         Jump,
         BFalse,
         BTrue,
@@ -27,8 +27,8 @@ struct IRInst {
         Bneq,
         Blt,
         Ble,
-        Reljump,
-        Relbfalse, // sourceReg, address
+        Reljump, // number
+        Relbfalse, // sourceReg, number
         Relbtrue,
         Relbgt,
         Relbge,
@@ -38,7 +38,7 @@ struct IRInst {
         Relble,
         Call,
         Return,
-        Calc
+        Calc // destReg, nodeID
     };
     IRInst::Type type;
     static unsigned int registerCount;
