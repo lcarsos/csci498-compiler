@@ -21,12 +21,13 @@ struct IRInst {
         BFalse,
         BTrue,
         Reljump,
-        Relbfalse,
+        Relbfalse, // sourceReg, address
         Relbtrue,
         Call,
         Return,
         Calc
     };
+    IRInst::Type type;
     static unsigned int registerCount;
     unsigned int destReg = 0;
     unsigned int sourceReg = 0;

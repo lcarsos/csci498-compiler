@@ -1,11 +1,23 @@
 #include "ast.h"
+#include "symboltable.h"
 
 #include <functional>
 #include <sstream>
 #include <unordered_map>
 
+std::vector<IRInst> ir_assignment(ASTNode* node);
+std::vector<IRInst> ir_block(ASTNode* node);
+std::vector<IRInst> ir_declarations(ASTNode* node);
+std::vector<IRInst> ir_expression(ASTNode* node);
+std::vector<IRInst> ir_if(ASTNode* node);
+std::vector<IRInst> ir_program(ASTNode* node);
+std::vector<IRInst> ir_return(ASTNode* node);
+std::vector<IRInst> ir_symbol(ASTNode* node);
+std::vector<IRInst> ir_while(ASTNode* node);
+
 unsigned int IRInst::registerCount = 0;
 int ASTNode::nodeCount = 0;
+static SymbolTable symT(10000); //You all can kill me later for this
 
 void ASTNode::addChild(const ASTNode& node) {
     children.push_back(node);
@@ -52,44 +64,23 @@ std::vector<IRInst> ASTNode::generate_ir() {
             //TODO: Return Error
             return result;
         case Assignment:
-            // generate_ir on RHS -> RX
-            // memst RX, @(LHS)
-            return result;
+            return ir_assignment(this);
         case Block:
-            // generate_ir on all children
-            // pass vector on
-            return result;
+            return ir_block(this);
         case Declarations:
-            // First Child is always type
-            // All children afterwards are symbols or assignment
-            //      first child of assignment is symbol to add to table
-
-            // if symbol in scope
-            //      error
-            // else
-            //    add to table
-            //
-            // if assignment
-            //    generate_ir for assignment
-            //  
-            return result;
+            return ir_declarations(this);
         case Expression:
-            //Return calc RD, <Expr>
-            return result;
+            return ir_expression(this);
         case If:
-            return result;
+            return ir_if(this);
         case Program:
-            //Concat children
-            return result;
+            return ir_program(this);
         case Return:
-            // ircode: return
-            return result;
+            return ir_return(this);
         case Symbol:
-            // error (maybe)
-            return result;
+            return ir_symbol(this);
         case While:
-            // Like if
-            return result;
+            return ir_while(this);;
     }
 }
 
@@ -144,4 +135,144 @@ std::string to_string(ASTNode::Type type) {
 
 bool operator==(const ASTNode& a, const ASTNode& b) {
     return a.uniqueID == b.uniqueID;
+}
+
+
+
+std::vector<IRInst> ir_assignment(ASTNode& node) {
+    // memst RX, @(LHS)
+    std::vector<IRInst> result;
+
+    // generate_ir on RHS -> RX
+    // Assignments always have two children
+    //      Look at language_0.y lines 179 and 199 for proof
+    result = node.children[1].generate_ir(); //should call ir_expression()
+
+    std::vector<IRInst> symbolIR = node.children[0].generate_ir();
+
+    result.reserve(result.size() + symbolIR.size());
+    result.insert(result.begin(), symbolIR.begin(), symbolIR.end());
+
+    return result;
+}
+
+std::vector<IRInst> ir_block(ASTNode& node) {
+    // generate_ir on all children
+    // pass vector on
+    std::vector<IRInst> result;
+
+    //Create new scope for block
+    symT.openScope();
+
+    //Build up result from generate_ir on all children
+    std::vector<IRInst> childResult;
+    for (ASTNode& child : node.children) {
+        childResult = child.generate_ir();
+        result.reserve(result.size() + childResult.size());
+        result.insert(result.end(), childResult.begin(), childResult.end());
+    }
+
+    //Close scope for block
+    symT.closeScope();
+
+    return result;
+}
+
+std::vector<IRInst> ir_declarations(ASTNode& node) {
+    // First Child is always type
+    // All children afterwards are symbols or assignment
+    //      first child of assignment is symbol to add to table
+
+    // if symbol in scope
+    //      error
+    // else
+    //    add to table
+    //
+    // if assignment
+    //    generate_ir for assignment
+    //  
+    std::vector<IRInst> result;
+
+
+    return result;
+}
+
+std::vector<IRInst> ir_expression(ASTNode& node) {
+    //Return calc RD, <Expr>
+    std::vector<IRInst> result;
+
+    IRInst calcExpr;
+
+    calcExpr.type = IRInst::Calc;
+    calcExpr.destReg = 0;
+    calcExpr.nodeID = node.uniqueID;
+
+    result.push_back(calcExpr);
+
+    return result;
+}
+
+std::vector<IRInst> ir_if(ASTNode& node) {
+    std::vector<IRInst> result;
+
+    //Calculate if expression, result will be in R0
+    std::vector<IRInst> exprNode = node.children[0].generate_ir();
+    result.reserve(result.size() + exprNode.size());
+    result.insert(result.end(), exprNode.begin(), exprNode.end());
+
+    //Get if true block
+    std::vector<IRInst> ifBlock = node.children[1].generate_ir();
+
+    //Add logic to jump past if the condition is false
+    IRInst jumpFalse;
+    jumpFalse.type = IRInst::Relbfalse;
+    jumpFalse.sourceReg = 0;
+    jumpFalse.address = ifBlock.size() + (node.children.size() > 2 ? 2 : 1);
+    result.push_back(jumpFalse);
+
+    //If else block exists handle it
+    if (node.children.size() == 3) {
+        std::vector<IRInst> elseBlock = node.children[2].generate_ir();
+        IRInst jumpElse;
+        jumpElse.type = IRInst::Reljump;
+        jumpElse.address = elseBlock.size() + 1;
+        result.push_back(jumpElse);
+    }
+
+    return result;
+}
+
+std::vector<IRInst> ir_program(ASTNode& node) {
+    //Concat children
+    std::vector<IRInst> result;
+
+    std::vector<IRInst> childResult;
+    for (ASTNode& child : node.children) {
+        childResult = child.generate_ir();
+        result.reserve(result.size() + childResult.size());
+        result.insert(result.end(), childResult.begin(), childResult.end());
+    }
+
+    return result;
+}
+
+std::vector<IRInst> ir_return(ASTNode& node) {
+    // ircode: return
+    std::vector<IRInst> result;
+
+    return result;
+}
+
+std::vector<IRInst> ir_symbol(ASTNode& node) {
+    // error (maybe)
+    std::vector<IRInst> result;
+
+    return result;
+}
+
+std::vector<IRInst> ir_while(ASTNode& node) {
+    // Like if
+    std::vector<IRInst> result;
+
+    return result;
 }
