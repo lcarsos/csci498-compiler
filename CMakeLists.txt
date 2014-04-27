@@ -119,4 +119,11 @@ add_executable(test_datablock
     source/datablock.cpp
     )
 
+add_executable(test_symboltable
+    tests/symboltable_test.cpp
+
+    include/symboltable.h
+    source/symboltable.cpp
+    )
+
 target_link_libraries(frontend fl)
