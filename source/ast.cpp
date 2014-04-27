@@ -5,15 +5,15 @@
 #include <sstream>
 #include <unordered_map>
 
-std::vector<IRInst> ir_assignment(ASTNode* node);
-std::vector<IRInst> ir_block(ASTNode* node);
-std::vector<IRInst> ir_declarations(ASTNode* node);
-std::vector<IRInst> ir_expression(ASTNode* node);
-std::vector<IRInst> ir_if(ASTNode* node);
-std::vector<IRInst> ir_program(ASTNode* node);
-std::vector<IRInst> ir_return(ASTNode* node);
-std::vector<IRInst> ir_symbol(ASTNode* node);
-std::vector<IRInst> ir_while(ASTNode* node);
+std::vector<IRInst> ir_assignment(const ASTNode* node);
+std::vector<IRInst> ir_block(const ASTNode* node);
+std::vector<IRInst> ir_declarations(const ASTNode* node);
+std::vector<IRInst> ir_expression(const ASTNode* node);
+std::vector<IRInst> ir_if(const ASTNode* node);
+std::vector<IRInst> ir_program(const ASTNode* node);
+std::vector<IRInst> ir_return(const ASTNode* node);
+std::vector<IRInst> ir_symbol(const ASTNode* node);
+std::vector<IRInst> ir_while(const ASTNode* node);
 
 unsigned int IRInst::registerCount = 0;
 int ASTNode::nodeCount = 0;
@@ -56,16 +56,17 @@ void ASTNode::print_tree(std::ostream& os) {
 
 }
 
-std::vector<IRInst> ASTNode::generate_ir() {
+std::vector<IRInst> ASTNode::generate_ir() const {
     //TODO: add symbol function
     std::vector<IRInst> result;
     switch (type) {
         case Empty:
             //TODO: Return Error
             return result;
-        case Assignment:
-            return ir_assignment(this);
-        case Block:
+        case Type::Assignment:
+            result = ir_assignment(this);
+            return result;
+        case Type::Block:
             return ir_block(this);
         case Declarations:
             return ir_declarations(this);
@@ -139,16 +140,16 @@ bool operator==(const ASTNode& a, const ASTNode& b) {
 
 
 
-std::vector<IRInst> ir_assignment(ASTNode& node) {
+std::vector<IRInst> ir_assignment(const ASTNode* node) {
     // memst RX, @(LHS)
     std::vector<IRInst> result;
 
     // generate_ir on RHS -> RX
     // Assignments always have two children
     //      Look at language_0.y lines 179 and 199 for proof
-    result = node.children[1].generate_ir(); //should call ir_expression()
+    result = node->children[1].generate_ir(); //should call ir_expression()
 
-    std::vector<IRInst> symbolIR = node.children[0].generate_ir();
+    std::vector<IRInst> symbolIR = node->children[0].generate_ir();
 
     result.reserve(result.size() + symbolIR.size());
     result.insert(result.begin(), symbolIR.begin(), symbolIR.end());
@@ -156,7 +157,7 @@ std::vector<IRInst> ir_assignment(ASTNode& node) {
     return result;
 }
 
-std::vector<IRInst> ir_block(ASTNode& node) {
+std::vector<IRInst> ir_block(const ASTNode* node) {
     // generate_ir on all children
     // pass vector on
     std::vector<IRInst> result;
@@ -166,7 +167,7 @@ std::vector<IRInst> ir_block(ASTNode& node) {
 
     //Build up result from generate_ir on all children
     std::vector<IRInst> childResult;
-    for (ASTNode& child : node.children) {
+    for (ASTNode child : node->children) {
         childResult = child.generate_ir();
         result.reserve(result.size() + childResult.size());
         result.insert(result.end(), childResult.begin(), childResult.end());
@@ -178,7 +179,7 @@ std::vector<IRInst> ir_block(ASTNode& node) {
     return result;
 }
 
-std::vector<IRInst> ir_declarations(ASTNode& node) {
+std::vector<IRInst> ir_declarations(const ASTNode* node) {
     // First Child is always type
     // All children afterwards are symbols or assignment
     //      first child of assignment is symbol to add to table
@@ -197,7 +198,7 @@ std::vector<IRInst> ir_declarations(ASTNode& node) {
     return result;
 }
 
-std::vector<IRInst> ir_expression(ASTNode& node) {
+std::vector<IRInst> ir_expression(const ASTNode* node) {
     //Return calc RD, <Expr>
     std::vector<IRInst> result;
 
@@ -205,34 +206,34 @@ std::vector<IRInst> ir_expression(ASTNode& node) {
 
     calcExpr.type = IRInst::Calc;
     calcExpr.destReg = 0;
-    calcExpr.nodeID = node.uniqueID;
+    calcExpr.nodeID = node->uniqueID;
 
     result.push_back(calcExpr);
 
     return result;
 }
 
-std::vector<IRInst> ir_if(ASTNode& node) {
+std::vector<IRInst> ir_if(const ASTNode* node) {
     std::vector<IRInst> result;
 
     //Calculate if expression, result will be in R0
-    std::vector<IRInst> exprNode = node.children[0].generate_ir();
+    std::vector<IRInst> exprNode = node->children[0].generate_ir();
     result.reserve(result.size() + exprNode.size());
     result.insert(result.end(), exprNode.begin(), exprNode.end());
 
     //Get if true block
-    std::vector<IRInst> ifBlock = node.children[1].generate_ir();
+    std::vector<IRInst> ifBlock = node->children[1].generate_ir();
 
     //Add logic to jump past if the condition is false
     IRInst jumpFalse;
     jumpFalse.type = IRInst::Relbfalse;
     jumpFalse.sourceReg = 0;
-    jumpFalse.address = ifBlock.size() + (node.children.size() > 2 ? 2 : 1);
+    jumpFalse.address = ifBlock.size() + (node->children.size() > 2 ? 2 : 1);
     result.push_back(jumpFalse);
 
     //If else block exists handle it
-    if (node.children.size() == 3) {
-        std::vector<IRInst> elseBlock = node.children[2].generate_ir();
+    if (node->children.size() == 3) {
+        std::vector<IRInst> elseBlock = node->children[2].generate_ir();
         IRInst jumpElse;
         jumpElse.type = IRInst::Reljump;
         jumpElse.address = elseBlock.size() + 1;
@@ -242,12 +243,12 @@ std::vector<IRInst> ir_if(ASTNode& node) {
     return result;
 }
 
-std::vector<IRInst> ir_program(ASTNode& node) {
+std::vector<IRInst> ir_program(const ASTNode* node) {
     //Concat children
     std::vector<IRInst> result;
 
     std::vector<IRInst> childResult;
-    for (ASTNode& child : node.children) {
+    for (const ASTNode& child : node->children) {
         childResult = child.generate_ir();
         result.reserve(result.size() + childResult.size());
         result.insert(result.end(), childResult.begin(), childResult.end());
@@ -256,21 +257,21 @@ std::vector<IRInst> ir_program(ASTNode& node) {
     return result;
 }
 
-std::vector<IRInst> ir_return(ASTNode& node) {
+std::vector<IRInst> ir_return(const ASTNode* node) {
     // ircode: return
     std::vector<IRInst> result;
 
     return result;
 }
 
-std::vector<IRInst> ir_symbol(ASTNode& node) {
+std::vector<IRInst> ir_symbol(const ASTNode* node) {
     // error (maybe)
     std::vector<IRInst> result;
 
     return result;
 }
 
-std::vector<IRInst> ir_while(ASTNode& node) {
+std::vector<IRInst> ir_while(const ASTNode* node) {
     // Like if
     std::vector<IRInst> result;
 

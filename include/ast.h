@@ -90,7 +90,7 @@ public:
     void print_tree(std::ostream& os);
 
     //Generates IR code vector
-    std::vector<IRInst> generate_ir();
+    std::vector<IRInst> generate_ir() const;
 
     // Prints the IR code
     void print_ir(std::ostream& os);
