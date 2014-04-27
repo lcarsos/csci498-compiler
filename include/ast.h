@@ -29,7 +29,7 @@ struct IRInst {
         Ble,
         Reljump, // number
         Relbfalse, // sourceReg, number
-        Relbtrue,
+        Relbtrue, //sourceReg, number
         Relbgt,
         Relbge,
         Relbeq,

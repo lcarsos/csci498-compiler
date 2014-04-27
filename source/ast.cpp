@@ -58,7 +58,6 @@ void ASTNode::print_tree(std::ostream& os) {
 }
 
 std::vector<IRInst> ASTNode::generate_ir() const {
-    //TODO: add symbol function
     std::vector<IRInst> result;
     switch (type) {
         case Empty:
@@ -392,12 +391,16 @@ std::vector<IRInst> ir_program(const ASTNode* node) {
     //Concat children
     std::vector<IRInst> result;
 
+    symT.openScope();
+
     std::vector<IRInst> childResult;
     for (const ASTNode& child : node->children) {
         childResult = child.generate_ir();
         result.reserve(result.size() + childResult.size());
         result.insert(result.end(), childResult.begin(), childResult.end());
     }
+
+    symT.closeScope();
 
     return result;
 }
