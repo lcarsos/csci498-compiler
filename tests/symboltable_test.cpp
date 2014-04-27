@@ -3,54 +3,87 @@
 
 #include "symboltable.h"
 
-int main() {
-    SymbolTable st1(0);
-    SymbolTableNode *bad = st1.retrieveSymbol("a");
-    assert(bad == 0);               /* Invalid symbols should not return a valid symbol node */
-    // NOTE: Symbol table does not create an initial scope
-    st1.openScope();
-    bad = st1.retrieveSymbol("a");
-    assert(bad == 0);               /* Invalid symbols should not return a valid symbol node */
-    st1.enterSymbol("a", "string", {});
-    SymbolTableNode* a = st1.retrieveSymbol("a");
-    assert(a != 0);                 /* Make sure that enterSymbol works correctly */
-    printf("made it here\n");
-    assert(a->type == "string");    /* Test that retrieveSymbol returns the correct symbol */
-    st1.openScope();
-    st1.enterSymbol("x", "int", {});
-    SymbolTableNode* hasx = st1.retrieveSymbol("x");
-    assert(hasx != 0);              /* Make sure that enterSymbol works correctly inside scopes */
-    assert(hasx->type == "int");    /* Test that retrieveSymbol returns the correct symbol */
-    st1.closeScope();
-    SymbolTableNode *stnode = st1.retrieveSymbol("x");
-    assert(stnode == 0);            /* Test that closing the scope loses access to variables created within */
-    SymbolTableNode *again = st1.retrieveSymbol("a");
-    assert(again != 0);             /* Make sure that symbols survive across scopes */
+#include <iostream>
+#include <string>
+#include <vector>
 
-    SymbolTable st2(0);
-    st2.openScope();
-    st2.enterSymbol("one", "int", {});
-    st2.openScope();
-    st2.enterSymbol("two", "int", {});
-    st2.openScope();
-    st2.enterSymbol("three", "int", {});
-    SymbolTableNode *deep = st2.retrieveSymbol("one");
-    assert(deep != 0);              /* Make sure "deeply" nested scopes maintain access to outer scopes */
-    deep = st2.retrieveSymbol("two");
-    assert(deep != 0);              /* Make sure access is maintained to outer scopes */
-    deep = st2.retrieveSymbol("three");
-    assert(deep != 0);              /* Make sure "deeply" nested scopes still allow symbol creation */
-    st2.closeScope();
-    assert(deep != 0);              /* TODO I'm not actually sure if this should be bad or not */
-    deep = st2.retrieveSymbol("three");
-    assert(deep == 0);              /* Make sure that the pointer actually changes when trying to get a bad pointer */
-    deep = st2.retrieveSymbol("two");
-    st2.closeScope();
-    assert(deep != 0);              /* TODO I'm not actually sure if this should be bad or not */
-    deep = st2.retrieveSymbol("two");
-    assert(deep == 0);
-    deep = st2.retrieveSymbol("one");
-    assert(deep != 0);
+// Our version is not in std and the confusion of having nonconflicting
+//    overloads in different namespaces is too much for me.
+using std::to_string;
+
+int test_total = 0;
+int test_fails = 0;
+
+void test_SymbolTable_insert(SymbolTable& table, SymbolTableEntry entry) {
+    test_total += 1;
+    if (!table.enterSymbol(entry)) {
+        test_fails += 1;
+        std::cerr << "[" << test_total << "] Entry \n\t" << to_string(entry);
+        std::cerr << "\n was not properly inserted." << std::endl;
+        std::cerr << std::endl;
+    }
+}
+
+void test_SymbolTable_entry_exists(SymbolTable& table, SymbolTableEntry entry) {
+    test_total += 1;
+    auto retrieved = table.retrieveSymbol(entry.name);
+    if (retrieved != entry) {
+        test_fails += 1;
+        std::cerr << "[" << test_total << "] Expected \n\t";
+        std::cerr << to_string(entry) << ",\n but instead";
+        std::cerr << " table gave us \n\t" << to_string(retrieved) << ".";
+        std::cerr << std::endl << std::endl;
+    }
+}
+
+void print_test_results() {
+    std::cout << "=====TEST RESULTS=====" << std::endl;
+    std::cout << test_fails << "/" << test_total << " failures" << std::endl;
+}
+
+// Easy way to get unique entries to insert without having to work for it.
+SymbolTableEntry lazy_new_entry() {
+    static int count = 1;
+
+    std::string name = "entry_" + to_string(count);
+    count += 1;
+    return SymbolTableEntry(name, "TestType");
+}
+
+int main() {
+    SymbolTable table;
+
+    const int ENTRY_COUNT = 4;
+    std::vector<SymbolTableEntry> entries;
+    for (int i = 0; i < ENTRY_COUNT; i += 1) {
+        entries.push_back(lazy_new_entry());
+    }
+
+    for (auto entry : entries) {
+        table.openScope();
+        test_SymbolTable_insert(table, entry);
+        test_SymbolTable_entry_exists(table, entry);
+    }
+
+    // Lookup should still work when we nest deeper.
+    table.openScope();
+    for (auto entry : entries) {
+        test_SymbolTable_entry_exists(table, entry);
+    }
+
+    // Does shadowing work?
+    table.openScope();
+    for (auto entry : entries) {
+        auto old = entry;
+        entry.type = "ShadowTestType";
+
+        test_SymbolTable_insert(table, entry);
+        test_SymbolTable_entry_exists(table, entry);
+    }
+
+    print_test_results();
+    std::cout << "=====SYMBOL TABLE=====" << std::endl;
+    table.pretty_print(std::cout);
 
     return 0;
 }
