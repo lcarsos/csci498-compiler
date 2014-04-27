@@ -1,59 +1,92 @@
 #ifndef symboltable_h
 #define symboltable_h
 
-#include <iostream>
+#include <ostream>
 #include <string>
-#include <map>
+#include <unordered_map>
+#include <vector>
 
-struct SymbolTableNode {
+struct SymbolTableEntry {
     std::string name;
     std::string type;
-    std::map<std::string, std::string> attributes;
+    // An address of 0 is never valid.
+    unsigned int address = 0;
+
+    // Add additional attributes as necessary.
+    // Do not forget to update operator== in symboltable.cpp!
+
+    SymbolTableEntry(std::string name, std::string type)
+    : name(name), type(type) {}
+};
+
+class LocalSymbolTable {
+public:
+    // Long typename is long.
+    typedef std::unordered_map<std::string, SymbolTableEntry> Entries_t;
+
+    // Return false when the symbol already exists.
+    bool enterSymbol(const SymbolTableEntry& entry);
+    bool declared(const std::string& name) const;
+
+    SymbolTableEntry retrieveSymbol(const std::string& name) const;
+
+    int getParentIndex() const;
+    const Entries_t& getEntries() const;
+
+    LocalSymbolTable() {}
+    explicit LocalSymbolTable(int parentIndex)
+    : parentIndex(parentIndex) {}
+
+    LocalSymbolTable& operator= (const LocalSymbolTable& other);
+
+    friend bool operator== (const LocalSymbolTable& a,
+                            const LocalSymbolTable& b);
+    friend bool operator!= (const LocalSymbolTable& a,
+                            const LocalSymbolTable& b);
+
+private:
+    Entries_t entries;
+
+    // The index of its parent in the scopes-vector in SymbolTable.
+    int parentIndex = 0;
 };
 
 class SymbolTable {
-    int current_address;
-
-    class Scope {
-        // symbol name => node
-        std::map<std::string, SymbolTableNode*> nodes;
-        Scope *parent = nullptr;
-
-    public:
-        Scope(Scope *parent) : parent(parent) { };
-
-        Scope* getParent() const {
-            return parent;
-        };
-
-        SymbolTableNode* getNodeNamed(const std::string& name) const {
-            return nodes.at(name);
-        };
-
-        void addSymbolNode(SymbolTableNode *node) {
-            if (node != nullptr) {
-                nodes[node->name] = node;
-            }
-        };
-    };
-
-    Scope *rootScope = nullptr;
-    Scope *currentScope = nullptr;
-
 public:
-    SymbolTable(int base_address);
-
     void openScope();
     void closeScope();
-    void enterSymbol(std::string name, std::string type,
-        std::map<std::string, std::string> attributes);
-    bool declaredLocally(std::string name);
 
-    // DO NOT free the pointers retrieved from here
-    // These are pointers to the internal representation
-    SymbolTableNode* retrieveSymbolLocally(std::string name);
-    SymbolTableNode* retrieveSymbol(std::string name);
+    bool hasOpenScope() const;
+
+    // Return false when the symbol already exists in the local scope.
+    bool enterSymbol(const SymbolTableEntry& entry);
+
+    bool declaredLocally(const std::string& name) const;
+    bool declared(const std::string& name) const;
+
+    SymbolTableEntry retrieveSymbolLocally(const std::string& name) const;
+    SymbolTableEntry retrieveSymbol(const std::string& name) const;
+
+    void pretty_print(std::ostream& os) const;
+
+private:
+    // Long typename is long.
+    typedef std::unordered_map<std::string, SymbolTableEntry> Entries_t;
+
+    Entries_t entries;
+    std::vector<LocalSymbolTable> scopes;
+    // index of current scope in scopes.
+    unsigned int current_scope = 0;
 
 };
+
+bool operator== (const SymbolTableEntry& a, const SymbolTableEntry& b);
+bool operator!= (const SymbolTableEntry& a, const SymbolTableEntry& b);
+
+bool operator== (const LocalSymbolTable& a, const LocalSymbolTable& b);
+bool operator!= (const LocalSymbolTable& a, const LocalSymbolTable& b);
+
+
+std::string to_string(const SymbolTableEntry& entry);
 
 #endif

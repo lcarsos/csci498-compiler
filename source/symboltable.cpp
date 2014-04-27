@@ -1,55 +1,188 @@
 #include "symboltable.h"
 
-using namespace std;
+#include <algorithm>
+#include <iomanip>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <utility>
 
-SymbolTable::SymbolTable(int base_address) {
-    current_address = base_address;
-    rootScope = new Scope(nullptr);
-    currentScope = rootScope;
+// LocalSymbolTable
+
+bool LocalSymbolTable::enterSymbol(const SymbolTableEntry& entry) {
+    if (entries.find(entry.name) != entries.end()) {
+        // It already exists, raise a redefinition error.
+        return false;
+    }
+    entries.insert(std::make_pair(entry.name, entry));
+    return true;
 }
 
+bool LocalSymbolTable::declared(const std::string& name) const {
+    return entries.find(name) != entries.end();
+}
+
+SymbolTableEntry LocalSymbolTable::retrieveSymbol(const std::string& name)
+    const {
+    if (!declared(name)) {
+        // TODO: Handle error: Not symbol delcared.
+    }
+    return entries.at(name);
+}
+
+int LocalSymbolTable::getParentIndex() const {
+    return parentIndex;
+}
+
+const LocalSymbolTable::Entries_t& LocalSymbolTable::getEntries() const {
+    return entries;
+}
+
+LocalSymbolTable& LocalSymbolTable::operator= (const LocalSymbolTable& other) {
+    if (*this != other) {
+        entries = other.entries;
+        parentIndex = other.parentIndex;
+    }
+    return *this;
+}
+
+// SymbolTable
 void SymbolTable::openScope() {
-    Scope *tmpScope = new Scope(currentScope);
-    currentScope = tmpScope;
+    LocalSymbolTable ltable;
+    if (scopes.empty()) {
+        // No tables yet, make the first one its own parent.
+        ltable = LocalSymbolTable();
+    } else {
+        // Otherwise, we have a scope to use as the parent.
+        ltable = LocalSymbolTable(current_scope);
+    }
+    scopes.push_back(ltable);
+    current_scope = scopes.size() - 1;
 }
 
 void SymbolTable::closeScope() {
-    if (currentScope->getParent() != nullptr) {
-        currentScope = currentScope->getParent();
-        delete currentScope;
-  }
+    current_scope = scopes[current_scope].getParentIndex();
 }
 
-void SymbolTable::enterSymbol(string name, string type,
-    map<string, string> attributes) {
-    attributes["memory_address"] = current_address;
-    if (type == "int") {
-        current_address += 4;
-    } else {
-        current_address += 4;
+bool SymbolTable::hasOpenScope() const {
+    return scopes.empty();
+}
+
+bool SymbolTable::enterSymbol(const SymbolTableEntry& entry) {
+    if (!hasOpenScope()) {
+        // TODO: Handle error: No scopes open yet.
     }
-    SymbolTableNode *tbnode = new SymbolTableNode({name, type, attributes});
-    currentScope->addSymbolNode(tbnode);
+    return scopes[current_scope].enterSymbol(entry);
 }
 
-bool SymbolTable::declaredLocally(string name) {
-    return (currentScope->getNodeNamed(name) != nullptr);
-}
-
-SymbolTableNode * SymbolTable::retrieveSymbolLocally(string name) {
-    if (declaredLocally(name)) {
-        return currentScope->getNodeNamed(name);
+bool SymbolTable::declaredLocally(const std::string& name) const {
+    if (!hasOpenScope()) {
+        // TODO: Handle error: No scopes open yet.
     }
-    return nullptr;
+    return scopes[current_scope].declared(name);
 }
 
-SymbolTableNode * SymbolTable::retrieveSymbol(string name) {
-    Scope *searchScope = currentScope;
-    while (searchScope->getParent() != nullptr) {
-        if (searchScope->getNodeNamed(name) != nullptr) {
-            return searchScope->getNodeNamed(name);
+bool SymbolTable::declared(const std::string& name) const {
+    bool found = false;
+    for (auto scope : scopes) {
+        if (scope.declared(name)) {
+            if (found) {
+                // Conflict! What do we do!?
+            } else {
+                found = true;
+            }
         }
-        searchScope = searchScope->getParent();
     }
-    return nullptr;
+    return found;
+}
+
+SymbolTableEntry SymbolTable::retrieveSymbolLocally(const std::string& name) const {
+    return scopes[current_scope].retrieveSymbol(name);
+}
+
+SymbolTableEntry SymbolTable::retrieveSymbol(const std::string& name) const {
+    if (declared(name)) {
+        int i = current_scope;
+        while (!scopes[i].declared(name)) {
+            i = scopes[i].getParentIndex();
+        }
+        return scopes[i].retrieveSymbol(name);
+    }
+    // TODO: Handle error: Not declared
+    return SymbolTableEntry("ERROR", "ERROR");
+}
+
+void SymbolTable::pretty_print(std::ostream& os) const {
+    // Pretty print the table. Everything should fit within
+    //   80 characters. There's a lot of magic numbers here.
+    //   Sorry.
+
+    for (int i = 0; i < scopes.size(); i += 1) {
+        os << "Scope: "  << std::left << std::setw(3) << i;
+        os << "Parent: " << std::left << std::setw(3);
+        os << scopes[i].getParentIndex();
+        os << std::endl;
+
+        for (int i = 0; i < 77; i += 1) {
+            os << '~';
+        }
+        os << std::endl;
+        os << "| Name                  | ";
+        os << "Type                    | ";
+        os << "Address                 |";
+        os << std::endl;
+
+        for (int i = 0; i < 77; i += 1) {
+            os << '~';
+        }
+        os << std::endl;
+
+        for (auto pair : scopes[i].getEntries()) {
+            auto name = pair.second.name;
+            auto type = pair.second.type;
+            auto address = pair.second.address;
+
+            os << "| ";
+            os << std::setw(24) << name;
+            os << std::setw(26) << type;
+            os << std::setw(23) << address << " |";
+            os << std::endl;
+        }
+
+        for (int i = 0; i < 77; i += 1) {
+            os << '-';
+        }
+
+        os << std::endl;
+        os << std::endl;
+    }
+}
+
+// Nonmember Functions
+
+bool operator== (const SymbolTableEntry& a, const SymbolTableEntry& b) {
+    return a.name == b.name
+        && a.type == b.type
+        && a.address == b.address;
+    // Add additional attributes as necessary.
+}
+
+bool operator!= (const SymbolTableEntry& a, const SymbolTableEntry& b) {
+    return !(a == b);
+}
+
+bool operator== (const LocalSymbolTable& a, const LocalSymbolTable& b) {
+    return a.entries == b.entries
+        && a.parentIndex == b.parentIndex;
+}
+
+bool operator!= (const LocalSymbolTable& a, const LocalSymbolTable& b) {
+    return !(a == b);
+}
+
+std::string to_string(const SymbolTableEntry& entry) {
+    std::stringstream ss;
+    ss << "[name=\"" << entry.name << "\", type=\"" << entry.type
+        << "\"]";
+    return ss.str();
 }
