@@ -1,44 +1,31 @@
-#include "symboltable.h"
-
 #include <cassert>
-#include <cstdio>
+#include <stdio.h>
+
+#include "symboltable.h"
 
 int main() {
     SymbolTable st1(0);
     SymbolTableNode *bad = st1.retrieveSymbol("a");
-    // Invalid symbols should not return a valid symbol node
-    assert(bad == nullptr);
-
+    assert(bad == 0);               /* Invalid symbols should not return a valid symbol node */
     // NOTE: Symbol table does not create an initial scope
     st1.openScope();
     bad = st1.retrieveSymbol("a");
-    // Invalid symbols should not return a valid symbol node
-    assert(bad == nullptr);
+    assert(bad == 0);               /* Invalid symbols should not return a valid symbol node */
     st1.enterSymbol("a", "string", {});
-
     SymbolTableNode* a = st1.retrieveSymbol("a");
-    // Make sure that enterSymbol works correctly
-    assert(a != nullptr);
-    // Test that retrieveSymbol returns the correct symbol
-    assert(a->type == "string");
-    printf("Symbol table properly retrieves existing symbols.\n");
-
-
+    assert(a != 0);                 /* Make sure that enterSymbol works correctly */
+    printf("made it here\n");
+    assert(a->type == "string");    /* Test that retrieveSymbol returns the correct symbol */
     st1.openScope();
     st1.enterSymbol("x", "int", {});
     SymbolTableNode* hasx = st1.retrieveSymbol("x");
-    // Make sure that enterSymbol works correctly inside scopes
-    assert(hasx != nullptr);
-    // Test that retrieveSymbol returns the correct symbol
-    assert(hasx->type == "int");
+    assert(hasx != 0);              /* Make sure that enterSymbol works correctly inside scopes */
+    assert(hasx->type == "int");    /* Test that retrieveSymbol returns the correct symbol */
     st1.closeScope();
-
     SymbolTableNode *stnode = st1.retrieveSymbol("x");
-    // Test that closing the scope loses access to variables created within
-    assert(stnode == nullptr);
+    assert(stnode == 0);            /* Test that closing the scope loses access to variables created within */
     SymbolTableNode *again = st1.retrieveSymbol("a");
-    // Make sure that symbols survive across scopes
-    assert(again != nullptr);
+    assert(again != 0);             /* Make sure that symbols survive across scopes */
 
     SymbolTable st2(0);
     st2.openScope();
@@ -48,28 +35,22 @@ int main() {
     st2.openScope();
     st2.enterSymbol("three", "int", {});
     SymbolTableNode *deep = st2.retrieveSymbol("one");
-    // Make sure "deeply" nested scopes maintain access to outer scopes
-    assert(deep != nullptr);
+    assert(deep != 0);              /* Make sure "deeply" nested scopes maintain access to outer scopes */
     deep = st2.retrieveSymbol("two");
-    // Make sure access is maintained to outer scopes
-    assert(deep != nullptr);
+    assert(deep != 0);              /* Make sure access is maintained to outer scopes */
     deep = st2.retrieveSymbol("three");
-    // Make sure "deeply" nested scopes still allow symbol creation
-    assert(deep != nullptr);
+    assert(deep != 0);              /* Make sure "deeply" nested scopes still allow symbol creation */
     st2.closeScope();
-    // TODO I'm not actually sure if this should be bad or not
-    assert(deep != nullptr);
+    assert(deep != 0);              /* TODO I'm not actually sure if this should be bad or not */
     deep = st2.retrieveSymbol("three");
-    // Make sure that the pointer actually changes when trying to get a bad pointer
-    assert(deep == nullptr);
+    assert(deep == 0);              /* Make sure that the pointer actually changes when trying to get a bad pointer */
     deep = st2.retrieveSymbol("two");
     st2.closeScope();
-    // TODO I'm not actually sure if this should be bad or not
-    assert(deep != nullptr);
+    assert(deep != 0);              /* TODO I'm not actually sure if this should be bad or not */
     deep = st2.retrieveSymbol("two");
-    assert(deep == nullptr);
+    assert(deep == 0);
     deep = st2.retrieveSymbol("one");
-    assert(deep != nullptr);
+    assert(deep != 0);
 
     return 0;
 }
