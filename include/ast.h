@@ -12,6 +12,7 @@ struct IRInst {
         Mv = 0,
         Memld,
         Immld,
+        Memst,
         Push,
         Mempush,
         Immpush,
@@ -20,9 +21,21 @@ struct IRInst {
         Jump,
         BFalse,
         BTrue,
+        Bgt,
+        Bge,
+        Beq,
+        Bneq,
+        Blt,
+        Ble,
         Reljump,
         Relbfalse, // sourceReg, address
         Relbtrue,
+        Relbgt,
+        Relbge,
+        Relbeq,
+        Relbneq,
+        Relblt,
+        Relble,
         Call,
         Return,
         Calc
@@ -37,7 +50,6 @@ struct IRInst {
 };
 
 class ASTNode {
-
 public:
     // When adding to this, remember to adjust std::to_string in ast.cpp!
     enum Type {

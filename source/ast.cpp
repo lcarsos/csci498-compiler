@@ -82,6 +82,8 @@ std::vector<IRInst> ASTNode::generate_ir() const {
             return ir_symbol(this);
         case While:
             return ir_while(this);;
+        default:
+            return result;
     }
 }
 
@@ -154,6 +156,17 @@ std::vector<IRInst> ir_assignment(const ASTNode* node) {
     result.reserve(result.size() + symbolIR.size());
     result.insert(result.begin(), symbolIR.begin(), symbolIR.end());
 
+    //Get memory address to store to
+    size_t mem = atoi(symT.retrieveSymbol(node->children[0].str)->attributes["memory_address"].c_str());
+
+    //Create new IRInst
+    IRInst assignInst;
+    assignInst.type = IRInst::Memst;
+    assignInst.address = mem;
+    assignInst.sourceReg = 0;
+
+    result.push_back(assignInst);
+
     return result;
 }
 
@@ -191,9 +204,27 @@ std::vector<IRInst> ir_declarations(const ASTNode* node) {
     //
     // if assignment
     //    generate_ir for assignment
-    //  
     std::vector<IRInst> result;
+    std::vector<IRInst> childResult;
 
+    bool symConst = node->children[0].isConst;
+    std::string symType = node->children[0].str;
+
+    for (size_t i = 1; i < node->children.size(); ++i) {
+        if (node->children[i].type == ASTNode::Symbol) {
+            //Just a basic dec. eg int x;
+            //Add to symbol table
+            symT.enterSymbol(node->children[i].str, symType, {{"const", (symConst ? "true" : "false")}});
+        } else {
+            //In assignment node, eg int x = 2 + 3;
+            //The symbol is the first child, Add to symbol table
+            symT.enterSymbol(node->children[i].children[0].str, symType, {{"const", symConst ? "true" : "false"}});
+            //and add assignment IR to result
+            childResult = node->children[i].generate_ir();
+            result.reserve(result.size() + childResult.size());
+            result.insert(result.end(), childResult.begin(), childResult.end());
+        }
+    }
 
     return result;
 }
