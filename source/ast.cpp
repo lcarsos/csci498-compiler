@@ -18,7 +18,7 @@ std::vector<IRInst> ir_while(const ASTNode* node);
 
 unsigned int IRInst::registerCount = 0;
 int ASTNode::nodeCount = 0;
-static SymbolTable symT; //You all can kill me later for this
+static SymbolTable symT;
 
 void ASTNode::addChild(const ASTNode& node) {
     children.push_back(node);
@@ -91,106 +91,106 @@ void ASTNode::print_ir(std::ostream& os) {
     std::vector<IRInst> fullIr = generate_ir();
     for(IRInst irnode : fullIr) {
         switch (irnode.type) {
-            case IRInst::Type::Mv:
+            case IRInst::Mv:
                 os << "mv R" << irnode.destReg << ", R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Memld:
+            case IRInst::Memld:
                 os << "memld R" << irnode.destReg << ", " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::Immld:
+            case IRInst::Immld:
                 os << "immld R" << irnode.destReg << ", " << irnode.number << std::endl;
                 break;
-            case IRInst::Type::Memst:
+            case IRInst::Memst:
                 os << "memst R" << irnode.sourceReg << ", " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::Push:
+            case IRInst::Push:
                 os << "push R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Mempush:
+            case IRInst::Mempush:
                 os << "mempush " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::Immpush:
+            case IRInst::Immpush:
                 os << "immpush " << irnode.number << std::endl;
                 break;
-            case IRInst::Type::Pop:
+            case IRInst::Pop:
                 os << "pop R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Mempop:
+            case IRInst::Mempop:
                 os << "mempop " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::Jump:
+            case IRInst::Jump:
                 os << "jump " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::BFalse:
+            case IRInst::BFalse:
                 os << "bfalse " << irnode.address << ", R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::BTrue:
+            case IRInst::BTrue:
                 os << "btrue " << irnode.address << ", R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Bgt:
+            case IRInst::Bgt:
                 os << "bgt " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Bge:
+            case IRInst::Bge:
                 os << "bge " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Beq:
+            case IRInst::Beq:
                 os << "beq " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Bneq:
+            case IRInst::Bneq:
                 os << "bneq " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Blt:
+            case IRInst::Blt:
                 os << "blt " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Ble:
+            case IRInst::Ble:
                 os << "ble " << irnode.address << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Reljump:
+            case IRInst::Reljump:
                 os << "reljump " << irnode.number << std::endl;
                 break;
-            case IRInst::Type::Relbfalse:
+            case IRInst::Relbfalse:
                 os << "relbfalse " << irnode.number << ", R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Relbtrue:
+            case IRInst::Relbtrue:
                 os << "relbtrue " << irnode.number << ", R" << irnode.sourceReg << std::endl;
                 break;
-            case IRInst::Type::Relbgt:
+            case IRInst::Relbgt:
                 os << "relbgt " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Relbge:
+            case IRInst::Relbge:
                 os << "relbge " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Relbeq:
+            case IRInst::Relbeq:
                 os << "relbeq " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Relbneq:
+            case IRInst::Relbneq:
                 os << "relbneq " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Relblt:
+            case IRInst::Relblt:
                 os << "relblt " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Relble:
+            case IRInst::Relble:
                 os << "relble " << irnode.number << ", R" << irnode.sourceReg <<
                     ", R" << irnode.destReg << std::endl;
                 break;
-            case IRInst::Type::Call:
+            case IRInst::Call:
                 os << "push PC" << std::endl << "jump " << irnode.address << std::endl;
                 break;
-            case IRInst::Type::Return:
+            case IRInst::Return:
                 os << "pop PC" << std::endl;
                 break;
-            case IRInst::Type::Calc:
+            case IRInst::Calc:
                 os << "calc R" << irnode.destReg << ", " << irnode.nodeID << std::endl;
                 break;
             default:
@@ -247,8 +247,6 @@ std::string to_string(ASTNode::Type type) {
 bool operator==(const ASTNode& a, const ASTNode& b) {
     return a.uniqueID == b.uniqueID;
 }
-
-
 
 std::vector<IRInst> ir_assignment(const ASTNode* node) {
     // memst RX, @(LHS)
