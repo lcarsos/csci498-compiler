@@ -9,6 +9,7 @@
 struct SymbolTableEntry {
     std::string name;
     std::string type;
+    bool isConst;
     // An address of 0 is never valid.
     unsigned int address = 0;
 
@@ -16,7 +17,10 @@ struct SymbolTableEntry {
     // Do not forget to update operator== in symboltable.cpp!
 
     SymbolTableEntry(std::string name, std::string type)
-    : name(name), type(type) {}
+    : name(name), type(type), isConst(false) {}
+
+    SymbolTableEntry(std::string name, std::string type, bool constant)
+    : name(name), type(type), isConst(constant) {}
 };
 
 class LocalSymbolTable {
@@ -59,7 +63,7 @@ public:
     bool hasOpenScope() const;
 
     // Return false when the symbol already exists in the local scope.
-    bool enterSymbol(const SymbolTableEntry& entry);
+    bool enterSymbol(SymbolTableEntry entry);
 
     bool declaredLocally(const std::string& name) const;
     bool declared(const std::string& name) const;
@@ -77,6 +81,7 @@ private:
     std::vector<LocalSymbolTable> scopes;
     // index of current scope in scopes.
     unsigned int current_scope = 0;
+    unsigned int next_memory_address = 4;
 
 };
 

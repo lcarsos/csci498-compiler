@@ -61,6 +61,7 @@ void SymbolTable::openScope() {
 }
 
 void SymbolTable::closeScope() {
+    next_memory_address -= 4 * scopes[current_scope].getEntries().size();
     current_scope = scopes[current_scope].getParentIndex();
 }
 
@@ -68,10 +69,14 @@ bool SymbolTable::hasOpenScope() const {
     return scopes.empty();
 }
 
-bool SymbolTable::enterSymbol(const SymbolTableEntry& entry) {
+bool SymbolTable::enterSymbol(SymbolTableEntry entry) {
     if (!hasOpenScope()) {
         // TODO: Handle error: No scopes open yet.
     }
+    //Assigns the symbol the next available address
+    entry.address = next_memory_address;
+    next_memory_address += 4;
+
     return scopes[current_scope].enterSymbol(entry);
 }
 

@@ -18,7 +18,7 @@ std::vector<IRInst> ir_while(const ASTNode* node);
 
 unsigned int IRInst::registerCount = 0;
 int ASTNode::nodeCount = 0;
-static SymbolTable symT(10000); //You all can kill me later for this
+static SymbolTable symT; //You all can kill me later for this
 
 void ASTNode::addChild(const ASTNode& node) {
     children.push_back(node);
@@ -259,13 +259,8 @@ std::vector<IRInst> ir_assignment(const ASTNode* node) {
     //      Look at language_0.y lines 179 and 199 for proof
     result = node->children[1].generate_ir(); //should call ir_expression()
 
-    std::vector<IRInst> symbolIR = node->children[0].generate_ir();
-
-    result.reserve(result.size() + symbolIR.size());
-    result.insert(result.begin(), symbolIR.begin(), symbolIR.end());
-
     //Get memory address to store to
-    size_t mem = atoi(symT.retrieveSymbol(node->children[0].str)->attributes["memory_address"].c_str());
+    unsigned int mem = symT.retrieveSymbol(node->children[0].str).address;
 
     //Create new IRInst
     IRInst assignInst;
@@ -321,11 +316,11 @@ std::vector<IRInst> ir_declarations(const ASTNode* node) {
         if (node->children[i].type == ASTNode::Symbol) {
             //Just a basic dec. eg int x;
             //Add to symbol table
-            symT.enterSymbol(node->children[i].str, symType, {{"const", (symConst ? "true" : "false")}});
+            symT.enterSymbol(SymbolTableEntry(node->children[i].str, symType, symConst));
         } else {
             //In assignment node, eg int x = 2 + 3;
             //The symbol is the first child, Add to symbol table
-            symT.enterSymbol(node->children[i].children[0].str, symType, {{"const", symConst ? "true" : "false"}});
+            symT.enterSymbol(SymbolTableEntry(node->children[i].children[0].str, symType, symConst));
             //and add assignment IR to result
             childResult = node->children[i].generate_ir();
             result.reserve(result.size() + childResult.size());
@@ -454,7 +449,7 @@ std::vector<IRInst> ir_symbol(const ASTNode* node) {
     }
 
     //Otherwise this is a symbol that should be in the symbol_table
-    size_t mem = atoi(symT.retrieveSymbol(node->str)->attributes["memory_address"].c_str());
+    unsigned int mem = symT.retrieveSymbol(node->str).address;
 
     IRInst loadInst;
     loadInst.type = IRInst::Mempush;
