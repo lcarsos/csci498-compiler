@@ -7,6 +7,11 @@
 #include <string>
 #include <utility>
 
+// SymbolTableEntry
+void SymbolTableEntry::setInitialized() {
+    initialized = true;
+}
+
 // LocalSymbolTable
 
 bool LocalSymbolTable::enterSymbol(const SymbolTableEntry& entry) {
@@ -22,12 +27,12 @@ bool LocalSymbolTable::declared(const std::string& name) const {
     return entries.find(name) != entries.end();
 }
 
-SymbolTableEntry LocalSymbolTable::retrieveSymbol(const std::string& name)
-    const {
-    if (!declared(name)) {
-        // TODO: Handle error: Not symbol delcared.
-    }
-    return entries.at(name);
+SymbolTableEntry LocalSymbolTable::retrieveSymbol(const std::string& name) {
+    return retrieveSymbolRef(name);
+}
+
+void LocalSymbolTable::setInitialized(const std::string& name) {
+    retrieveSymbolRef(name).setInitialized();
 }
 
 int LocalSymbolTable::getParentIndex() const {
@@ -36,6 +41,13 @@ int LocalSymbolTable::getParentIndex() const {
 
 const LocalSymbolTable::Entries_t& LocalSymbolTable::getEntries() const {
     return entries;
+}
+
+SymbolTableEntry& LocalSymbolTable::retrieveSymbolRef(const std::string& name) {
+    if (!declared(name)) {
+        // TODO: Handle error: Not symbol delcared.
+    }
+    return entries.at(name);
 }
 
 LocalSymbolTable& LocalSymbolTable::operator= (const LocalSymbolTable& other) {
@@ -101,20 +113,18 @@ bool SymbolTable::declared(const std::string& name) const {
     return found;
 }
 
-SymbolTableEntry SymbolTable::retrieveSymbolLocally(const std::string& name) const {
+SymbolTableEntry SymbolTable::retrieveSymbolLocally(const std::string& name) {
     return scopes[current_scope].retrieveSymbol(name);
 }
 
-SymbolTableEntry SymbolTable::retrieveSymbol(const std::string& name) const {
-    if (declared(name)) {
-        int i = current_scope;
-        while (!scopes[i].declared(name)) {
-            i = scopes[i].getParentIndex();
-        }
-        return scopes[i].retrieveSymbol(name);
-    }
+SymbolTableEntry SymbolTable::retrieveSymbol(const std::string& name) {
+    return retrieveSymbolRef(name);
     // TODO: Handle error: Not declared
-    return SymbolTableEntry("ERROR", "ERROR");
+    // return SymbolTableEntry("ERROR", "ERROR");
+}
+
+void SymbolTable::setInitialized(const std::string& name) {
+    retrieveSymbolRef(name).setInitialized();
 }
 
 void SymbolTable::pretty_print(std::ostream& os) const {
@@ -122,7 +132,7 @@ void SymbolTable::pretty_print(std::ostream& os) const {
     //   80 characters. There's a lot of magic numbers here.
     //   Sorry.
 
-    for (int i = 0; i < scopes.size(); i += 1) {
+    for (unsigned int i = 0; i < scopes.size(); i += 1) {
         os << "Scope: "  << std::left << std::setw(3) << i;
         os << "Parent: " << std::left << std::setw(3);
         os << scopes[i].getParentIndex();
@@ -161,6 +171,18 @@ void SymbolTable::pretty_print(std::ostream& os) const {
         os << std::endl;
         os << std::endl;
     }
+}
+
+SymbolTableEntry& SymbolTable::retrieveSymbolRef(const std::string& name) {
+    if (declared(name)) {
+        int i = current_scope;
+        while (!scopes[i].declared(name)) {
+            i = scopes[i].getParentIndex();
+        }
+        return scopes[i].retrieveSymbolRef(name);
+    }
+    // TODO: Handle error: Not declared
+    // return SymbolTableEntry("ERROR", "ERROR");
 }
 
 // Nonmember Functions

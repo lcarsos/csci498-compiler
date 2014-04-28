@@ -10,17 +10,23 @@ struct SymbolTableEntry {
     std::string name;
     std::string type;
     bool isConst;
+    bool initialized;
     // An address of 0 is never valid.
     unsigned int address = 0;
+
+    void setInitialized();
 
     // Add additional attributes as necessary.
     // Do not forget to update operator== in symboltable.cpp!
 
     SymbolTableEntry(std::string name, std::string type)
-    : name(name), type(type), isConst(false) {}
+    : name(name), type(type), isConst(false), initialized(false) {}
 
     SymbolTableEntry(std::string name, std::string type, bool constant)
-    : name(name), type(type), isConst(constant) {}
+    : name(name), type(type), isConst(constant), initialized(false) {}
+
+    SymbolTableEntry(std::string name, std::string type, bool constant, bool initialized)
+    : name(name), type(type), isConst(constant), initialized(initialized) {}
 };
 
 class LocalSymbolTable {
@@ -32,7 +38,10 @@ public:
     bool enterSymbol(const SymbolTableEntry& entry);
     bool declared(const std::string& name) const;
 
-    SymbolTableEntry retrieveSymbol(const std::string& name) const;
+    SymbolTableEntry retrieveSymbol(const std::string& name);
+    SymbolTableEntry& retrieveSymbolRef(const std::string& name);
+
+    void setInitialized(const std::string& name);
 
     int getParentIndex() const;
     const Entries_t& getEntries() const;
@@ -53,6 +62,7 @@ private:
 
     // The index of its parent in the scopes-vector in SymbolTable.
     int parentIndex = 0;
+
 };
 
 class SymbolTable {
@@ -68,8 +78,11 @@ public:
     bool declaredLocally(const std::string& name) const;
     bool declared(const std::string& name) const;
 
-    SymbolTableEntry retrieveSymbolLocally(const std::string& name) const;
-    SymbolTableEntry retrieveSymbol(const std::string& name) const;
+    void setInitialized(const std::string& name);
+
+
+    SymbolTableEntry retrieveSymbolLocally(const std::string& name);
+    SymbolTableEntry retrieveSymbol(const std::string& name);
 
     void pretty_print(std::ostream& os) const;
 
@@ -82,6 +95,8 @@ private:
     // index of current scope in scopes.
     unsigned int current_scope = 0;
     unsigned int next_memory_address = 4;
+
+    SymbolTableEntry& retrieveSymbolRef(const std::string& name);
 
 };
 

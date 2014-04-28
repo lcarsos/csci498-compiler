@@ -252,20 +252,27 @@ std::vector<IRInst> ir_assignment(const ASTNode* node) {
     // memst RX, @(LHS)
     std::vector<IRInst> result;
 
+    //Get memory address to store to
+    SymbolTableEntry sym = symT.retrieveSymbol(node->children[0].str);
+
+    if (sym.isConst && sym.initialized) {
+        //ERROR changing const
+        return result;
+    }
+    sym.setInitialized();
+
     // generate_ir on RHS -> RX
     // Assignments always have two children
     //      Look at language_0.y lines 179 and 199 for proof
     result = node->children[1].generate_ir(); //should call ir_expression()
 
-    //Get memory address to store to
-    unsigned int mem = symT.retrieveSymbol(node->children[0].str).address;
-
     //Create new IRInst
     IRInst assignInst;
     assignInst.type = IRInst::Mempop;
-    assignInst.address = mem;
+    assignInst.address = sym.address;
 
     result.push_back(assignInst);
+
 
     return result;
 }
@@ -314,6 +321,9 @@ std::vector<IRInst> ir_declarations(const ASTNode* node) {
         if (node->children[i].type == ASTNode::Symbol) {
             //Just a basic dec. eg int x;
             //Add to symbol table
+            if (symConst) {
+                //ERROR declaring const value without initializing
+            }
             symT.enterSymbol(SymbolTableEntry(node->children[i].str, symType, symConst));
         } else {
             //In assignment node, eg int x = 2 + 3;
@@ -378,7 +388,10 @@ std::vector<IRInst> ir_if(const ASTNode* node) {
         jumpElse.type = IRInst::Reljump;
         jumpElse.number = elseBlock.size() + 1;
         result.push_back(jumpElse);
+        result.reserve(result.size() + elseBlock.size());
+        result.insert(result.end(), elseBlock.begin(), elseBlock.end());
     }
+
 
     return result;
 }
