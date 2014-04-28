@@ -18,7 +18,6 @@ BinaryOp6       "^"
 BinaryOp7       "|"
 BinaryOp8       "&&"
 BinaryOp9       "||"
-
 AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 
 %%
@@ -26,6 +25,11 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 [ \n\t\r]+ {
 	// Eat whitespace.
 	continue;
+}
+
+"//".* {
+    //Eat comment
+    continue;
 }
 
 "if" {
