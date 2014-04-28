@@ -368,6 +368,9 @@ std::vector<IRInst> ir_if(const ASTNode* node) {
     jumpFalse.number = ifBlock.size() + (ifBlock.size() > 2 ? 2 : 1);
     result.push_back(jumpFalse);
 
+    result.reserve(result.size() + ifBlock.size());
+    result.insert(result.end(), ifBlock.begin(), ifBlock.end());
+
     //If else block exists handle it
     if (node->children.size() == 3) {
         std::vector<IRInst> elseBlock = node->children[2].generate_ir();
