@@ -5,6 +5,7 @@
 #include <functional>
 #include <sstream>
 #include <unordered_map>
+#include <algorithm>
 
 std::vector<IRInst> ir_assignment(const ASTNode* node);
 std::vector<IRInst> ir_block(const ASTNode* node);
@@ -193,6 +194,72 @@ void ASTNode::print_ir(std::ostream& os) {
             case IRInst::Calc:
                 os << "calc R" << irnode.destReg << ", " << irnode.nodeID << std::endl;
                 break;
+            case IRInst::Plus:
+              os << "+ R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::Minus:
+              os << "- R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::Times:
+              os << "* R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::Divide:
+              os << "/ R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::GT:
+              os << "> R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::GEQ:
+              os << ">= R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::LT:
+              os << "< R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::LEQ:
+              os << "<= R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::EQ:
+              os << "== R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::ShiftLeft:
+              os << "<< R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::ShiftRight:
+              os << ">> R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::Incr:
+              os << "++ R" << irnode.destReg << ", R" << irnode.sourceReg << std::endl;
+              break;
+            case IRInst::Decr:
+              os << "-- R" << irnode.destReg << ", R" << irnode.sourceReg << std::endl;
+              break;
+            case IRInst::Negate:
+              os << "- R" << irnode.destReg << ", R" << irnode.sourceReg << std::endl;
+              break;
+            case IRInst::Mod:
+              os << "% R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::BAND:
+              os << "& R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::BOR:
+              os << "| R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::BXOR:
+              os << "^ R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::NOT:
+              os << "! R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::BNOT:
+              os << "~ R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::AND:
+              os << "&& R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
+            case IRInst::OR:
+              os << "|| R" << irnode.destReg << ", R" << irnode.sourceReg << ", R" << irnode.sourceReg2 << std::endl;
+              break;
             default:
                 break;
         }
@@ -239,7 +306,7 @@ std::string to_string(ASTNode::Type type) {
     case ASTNode::Return:       return "Return";
     case ASTNode::Symbol:       return "Symbol";
     case ASTNode::While:        return "While";
-    default:
+        default:
         return "? (" + std::to_string((size_t)type) + ")";
     }
 }
@@ -339,23 +406,106 @@ std::vector<IRInst> ir_declarations(const ASTNode* node) {
     return result;
 }
 
+void get_register_count(const ASTNode* node, std::map<int, size_t> &mp) {
+    for (ASTNode child : node->children) {
+        if (child.type == ASTNode::Symbol) {
+            mp[child.uniqueID] = 1;
+        } else {
+            get_register_count(&child, mp);
+        }
+    }
+    size_t l = mp[node->children[0].uniqueID];
+    size_t r = node->children.size() > 1 ? mp[node->children[1].uniqueID] : 0;
+    mp[node->uniqueID] = (r == l) ? r + 1 : std::max(r, l);
+}
+
+int r1, r2;
+
+std::vector<IRInst> calc_tree(const ASTNode* node, const std::map<int, size_t>& mp, std::vector<int>& registers) {
+    if (mp.at(node->uniqueID) > registers.size()) {
+        // TODO implement virtual registers
+    }
+    if (node->type == ASTNode::Symbol) {
+        r1 = registers[0];
+        return node->generate_ir();
+    } else {
+        std::vector<IRInst> result;
+        IRInst op;
+        if (node->children.size() > 1) {
+            if (mp.at(node->children[0].uniqueID) >= mp.at(node->children[1].uniqueID)) {
+                // Left tree
+                std::vector<IRInst> childResult = calc_tree(&node->children[0], mp, registers);
+                result.reserve(result.size() + childResult.size());
+                result.insert(result.end(), childResult.begin(), childResult.end());
+                // Right tree
+                std::vector<int> choppedRegisters;
+                std::copy(registers.begin(), registers.end(), choppedRegisters.begin());
+                choppedRegisters.erase(choppedRegisters.begin());
+                childResult = calc_tree(&node->children[1], mp, registers);
+                result.reserve(result.size() + childResult.size());
+                result.insert(result.end(), childResult.begin(), childResult.end());
+                op.sourceReg = r1;
+                op.sourceReg2 = r2;
+            } else if (mp.at(node->children[0].uniqueID) < mp.at(node->children[1].uniqueID)) {
+                // Right tree
+                std::vector<IRInst> childResult = calc_tree(&node->children[1], mp, registers);
+                result.reserve(result.size() + childResult.size());
+                result.insert(result.end(), childResult.begin(), childResult.end());
+                // Left tree
+                std::vector<int> choppedRegisters;
+                std::copy(registers.begin(), registers.end(), choppedRegisters.begin());
+                choppedRegisters.erase(choppedRegisters.begin());
+                childResult = calc_tree(&node->children[0], mp, registers);
+                result.reserve(result.size() + childResult.size());
+                result.insert(result.end(), childResult.begin(), childResult.end());
+                op.sourceReg = r2;
+                op.sourceReg2 = r1;
+            }
+        } else {
+          op.sourceReg = r1;
+        }
+        r1 = registers[0];
+        r2 = registers[1];
+
+        if (node->str == "+") op.type = IRInst::Plus;
+        else if (node->str == "-") (node->children.size() > 1) ? op.type = IRInst::Minus : op.type = IRInst::Negate;
+        else if (node->str == "*") op.type = IRInst::Times;
+        else if (node->str == "/") op.type = IRInst::Divide;
+        else if (node->str == ">") op.type = IRInst::GT;
+        else if (node->str == ">=") op.type = IRInst::GEQ;
+        else if (node->str == "<") op.type = IRInst::LT;
+        else if (node->str == "<=") op.type = IRInst::LEQ;
+        else if (node->str == "==") op.type = IRInst::EQ;
+        else if (node->str == "<<") op.type = IRInst::ShiftLeft;
+        else if (node->str == ">>") op.type = IRInst::ShiftRight;
+        else if (node->str == "++") op.type = IRInst::Incr;
+        else if (node->str == "--") op.type = IRInst::Decr;
+        else if (node->str == "%") op.type = IRInst::Mod;
+        else if (node->str == "&") op.type = IRInst::BAND;
+        else if (node->str == "|") op.type = IRInst::BOR;
+        else if (node->str == "^") op.type = IRInst::BXOR;
+        else if (node->str == "!") op.type = IRInst::NOT;
+        else if (node->str == "~") op.type = IRInst::BNOT;
+        else if (node->str == "&&") op.type = IRInst::AND;
+        else if (node->str == "||") op.type = IRInst::OR;
+        op.destReg = r1;
+        result.push_back(op);
+
+        return result;
+    }
+}
+
 std::vector<IRInst> ir_expression(const ASTNode* node) {
     //Return calc RD, <Expr>
     std::vector<IRInst> result;
 
-    IRInst calcExpr;
-
-    calcExpr.type = IRInst::Calc;
-    calcExpr.destReg = 0;
-    calcExpr.nodeID = node->uniqueID;
-
-    result.push_back(calcExpr);
-
-    IRInst pushToStack;
-    pushToStack.type = IRInst::Push;
-    pushToStack.sourceReg = 0;
-
-    result.push_back(pushToStack);
+    std::map<int, size_t> mp;
+    std::vector<int> registers;
+    for (int i = 0; i < IRInst::TOTAL_REGISTERS; i++) {
+        registers.push_back(i + 1); // zero essentially means that the register is unused
+    }
+    get_register_count(node, mp);
+    result = calc_tree(node, mp, registers);
 
     return result;
 }
@@ -444,19 +594,22 @@ std::vector<IRInst> ir_symbol(const ASTNode* node) {
     if (endPtr == node->str.c_str() + node->str.size()) {
         if ((symbol_num == LONG_MIN || symbol_num == LONG_MAX) && errno == ERANGE) {
             //OUT OF RANGE ERROR
+            // TODO
             return result;
         }
 
         if (sizeof(long) > sizeof(int)) { //have to coerce into an int, so making sure I won't overflow
             if (symbol_num > INT_MAX || symbol_num < INT_MIN) {
                 //OUT OF INT RANGE ERROR
+                // TODO
                 return result;
             }
         }
 
         IRInst pushImm;
-        pushImm.type = IRInst::Immpush;
+        pushImm.type = IRInst::Immld;
         pushImm.number = static_cast<int>(symbol_num);
+        pushImm.destReg = r1;
 
         result.push_back(pushImm);
         return result;
@@ -466,8 +619,9 @@ std::vector<IRInst> ir_symbol(const ASTNode* node) {
     unsigned int mem = symT.retrieveSymbol(node->str).address;
 
     IRInst loadInst;
-    loadInst.type = IRInst::Mempush;
+    loadInst.type = IRInst::Memld;
     loadInst.address = mem;
+    loadInst.destReg = r1;
 
     result.push_back(loadInst);
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 struct IRInst {
     IRInst() {}
@@ -53,6 +54,7 @@ struct IRInst {
         ShiftRight,
         Incr,
         Decr,
+        Negate,
         Mod,
         BAND,
         BOR,
@@ -64,8 +66,12 @@ struct IRInst {
     };
     IRInst::Type type;
     static unsigned int registerCount;
+    static const size_t TOTAL_REGISTERS = 12;
+    static const size_t TOTAL_WORK_REGISTERS = 3;
+    static const size_t TOTAL_ALLOCATABLE_REGISTERS = TOTAL_REGISTERS-TOTAL_WORK_REGISTERS;
     unsigned int destReg = 0;
     unsigned int sourceReg = 0;
+    unsigned int sourceReg2 = 0;
     unsigned int address = 0;
     unsigned int nodeID = 0;
     int number = 0;
@@ -87,7 +93,7 @@ public:
         While,
     };
 
-    // This guarentees a unique number for every node created,
+    // This guarantees a unique number for every node created,
     //   but causes problems with copy constructors. There are
     //   over 200 nodes created before any of the final ones
     //   which we see in the tree are created!
