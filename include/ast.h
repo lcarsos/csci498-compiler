@@ -38,7 +38,29 @@ struct IRInst {
         Relble,
         Call,
         Return,
-        Calc // destReg, nodeID
+        Calc, // destReg, nodeID
+        // New nodes that replace Calc
+        Plus,
+        Minus,
+        Times,
+        Divide,
+        GT,
+        GEQ,
+        LT,
+        LEQ,
+        EQ,
+        ShiftLeft,
+        ShiftRight,
+        Incr,
+        Decr,
+        Mod,
+        BAND,
+        BOR,
+        BXOR,
+        NOT,
+        BNOT,
+        AND,
+        OR
     };
     IRInst::Type type;
     static unsigned int registerCount;
