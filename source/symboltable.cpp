@@ -60,20 +60,17 @@ LocalSymbolTable& LocalSymbolTable::operator= (const LocalSymbolTable& other) {
 
 // SymbolTable
 void SymbolTable::openScope() {
-    LocalSymbolTable ltable;
-    if (scopes.empty()) {
-        // No tables yet, make the first one its own parent.
-        ltable = LocalSymbolTable();
-    } else {
-        // Otherwise, we have a scope to use as the parent.
-        ltable = LocalSymbolTable(current_scope);
+    LocalSymbolTable ltable(next_memory_address);
+    if (!scopes.empty()) {
+        // We have a scope to use as the parent.
+        ltable = LocalSymbolTable(current_scope, next_memory_address);
     }
     scopes.push_back(ltable);
     current_scope = scopes.size() - 1;
 }
 
 void SymbolTable::closeScope() {
-    next_memory_address -= 4 * scopes[current_scope].getEntries().size();
+    next_memory_address = scopes[current_scope].getBaseAddress();
     current_scope = scopes[current_scope].getParentIndex();
 }
 

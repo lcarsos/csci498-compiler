@@ -38,6 +38,9 @@ public:
     bool enterSymbol(const SymbolTableEntry& entry);
     bool declared(const std::string& name) const;
 
+    // Returns this scope's base memory address
+    size_t getBaseAddress() const { return baseAddress; }
+
     SymbolTableEntry retrieveSymbol(const std::string& name);
     SymbolTableEntry& retrieveSymbolRef(const std::string& name);
 
@@ -46,9 +49,9 @@ public:
     int getParentIndex() const;
     const Entries_t& getEntries() const;
 
-    LocalSymbolTable() {}
-    explicit LocalSymbolTable(int parentIndex)
-    : parentIndex(parentIndex) {}
+    LocalSymbolTable(size_t baseAddress) : baseAddress(baseAddress) {}
+    explicit LocalSymbolTable(int parentIndex, size_t baseAddress)
+    : parentIndex(parentIndex), baseAddress(baseAddress) {}
 
     LocalSymbolTable& operator= (const LocalSymbolTable& other);
 
@@ -59,6 +62,8 @@ public:
 
 private:
     Entries_t entries;
+
+    size_t baseAddress;
 
     // The index of its parent in the scopes-vector in SymbolTable.
     int parentIndex = 0;
@@ -90,6 +95,7 @@ private:
     // Long typename is long.
     typedef std::unordered_map<std::string, SymbolTableEntry> Entries_t;
 
+    // Global variables
     Entries_t entries;
     std::vector<LocalSymbolTable> scopes;
     // index of current scope in scopes.
